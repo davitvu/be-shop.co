@@ -1,0 +1,22 @@
+# Server
+NODE_ENV=development
+PORT=
+API_URL=
+
+# Database (PostgreSQL)
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=
+DB_USER=postgres
+DB_PASSWORD=
+CORS_ORIGIN=\*
+DB_SYNC=false
+
+# JWT
+JWT_SECRET=
+JWT_REFRESH_SECRET=
+JWT_EXPIRES_IN=1d
+JWT_REFRESH_EXPIRES_IN=7d
+
+# Email
+
