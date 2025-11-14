@@ -1,37 +1,57 @@
-const createError = require('http-errors');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 const jwt = require('jsonwebtoken');
-const { User } = require('../models');
+const { AuthFailureError, NotFoundError, ForbiddenError } = require('../utils/core/errorResponse');
 
 const authenticate = async (req, res, next) => {
     try {
-        const authHeader = req.headers.authorization;
+        const token = req.cookies.accessToken;
 
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return next(createError(401, 'Access token is required'));
-        }
-
-        const token = authHeader.startsWith('Bearer') ? authHeader.split(' ')[1] : authHeader;
+        if (!token) throw new AuthFailureError('Access token is required');
 
         // verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         // get user
-        const user = await User.findByPk(decoded.id);
-        
-        if (!user) return next(createError(401, 'User not found'));
-        if (!user.isActive) return next(createError(403, 'Your account has been locked. Please contact administrator'));
+        const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+
+        if (!user) throw new NotFoundError('User not found');
+        if (!user.isActive) ForbiddenError('Your account has been locked. Please contact administrator');
+
+        const { password, verificationToken, resetPasswordToken, resetPasswordExpires, password_changed_at, ...userFiltered } = user;
+        req.user = userFiltered;
+        next();
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError') throw new AuthFailureError('Invalid token');
+        if (error.name === 'TokenExpiredError') throw new AuthFailureError('Token expired');
+        next(error);
+    }
+};
+
+const optionalAuth = async (req, res, next) => {
+    const token = req.cookies.accessToken;
+
+    if (!token) {
+        return next();
+    }
+
+    try {
+        // verify token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        // get user
+        const user = await prisma.user.findUnique({ where: { id: decoded.id } });
+
+        if (!user) throw new NotFoundError('User not found');
+        if (!user.isActive) ForbiddenError('Your account has been locked. Please contact administrator');
 
         req.user = user;
         next();
     } catch (error) {
-        if (error.name === 'JsonWebTokenError') {
-            return next(createError(401, 'Invalid token'));
-        }
-        if (error.name === 'TokenExpiredError') {
-            return next(createError(401, 'Token expired'));
-        }
+        if (error.name === 'JsonWebTokenError') throw new AuthFailureError('Invalid token');
+        if (error.name === 'TokenExpiredError') throw new AuthFailureError('Token expired');
         next(error);
     }
-};
+}
 
 module.exports = { authenticate }

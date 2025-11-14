@@ -1,24 +1,26 @@
 const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
+const cookieParser = require('cookie-parser')
 const route = require("./routes");
-const { connectDB } = require("./config/db");
-const { notFound, errorHandler } = require("./middlewares/errorHandler");
+const { errorHandler, endpointNotFound } = require("./utils/core/errorHandler");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-connectDB();
-
 // middlewares
-app.use(cors());
+app.use(cors({
+    origin: process.env.FE_URL || 'http://localhost:5173',
+    credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
 
 // routes
 app.use('/api/v1', route);
 
-// Notfound
-app.use(notFound);
+// endpointNotFound
+app.use(endpointNotFound);
 app.use(errorHandler);
 
 app.listen(PORT, () => {

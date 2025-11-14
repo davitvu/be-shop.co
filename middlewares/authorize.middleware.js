@@ -1,9 +1,15 @@
-const createError = require('http-errors');
+const { AuthFailureError, ForbiddenError } = require('../utils/core/errorResponse');
 
-const authorize = (...roles) => {
+/**
+ *     ===== How to use =====
+ * (..., *authenticate, *authorize("admin/ADMIN" || "manager/MANAGER"),...)
+ *  chỉ cần sử dụng 1 trong 2 ADMIN hoặc MANAGER
+ */
+
+const authorize = (role) => {
     return (req, res, next) => {
-        if (!req.user) return next(createError(401, 'Login to continue'));
-        if (!roles.includes(req.user.role)) return next(createError(403, `You do not have permission to access this resource (${roles.join('/')})`));
+        if (!req.user) throw new AuthFailureError('Login to continue');
+        if (!role.toUpperCase().includes(req.user.role)) throw new ForbiddenError(`You do not have permission to access this resource.`);
 
         next();
     }
