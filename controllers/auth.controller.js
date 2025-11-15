@@ -1,13 +1,14 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const jwt = require('jsonwebtoken');
-const { registerSchema, loginSchema, changePasswordSchema, passwordSchema } = require('../middlewares/validator/auth.validator');
+const { registerSchema, loginSchema, passwordSchema } = require('../middlewares/validations/auth.validation');
 const bcrypt = require('bcryptjs');
 const { ConflictRequestError, BadRequestError, ForbiddenError, NotFoundError, AuthFailureError } = require('../utils/core/errorResponse');
 const { Created, OK } = require('../utils/core/successResponse')
 const otpGenerator = require('otp-generator');
 const SendMailForgotPassword = require('../utils/sendEmail/forgotPassword');
 const SendVerificationEmail = require('../utils/sendEmail/emailVerify');
+const { filterSensitiveUserFields } = require('../utils/filterSensitiveUserFields');
 
 const generateAccessToken = (payload) => {
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN })
@@ -79,11 +80,16 @@ const register = async (req, res, next) => {
             newUser.emailVerificationToken = verificationToken;
         })
 
-        const verifyUrl = `${process.env.FE_URL}/verify-email?token=${newUser.emailVerificationToken}`;
-        await SendVerificationEmail(newUser.email, verifyUrl);
+        try {
+            const verifyUrl = `${process.env.FE_URL}/verify-email?token=${newUser.emailVerificationToken}`;
+            await SendVerificationEmail(newUser.email, verifyUrl);
+        } catch (sendMailErr) {
+            await prisma.user.delete({ where: { id: newUser.id } });
+            throw new BadRequestError('Send email verify failed, vui lòng thử lại. Please try again!');
+        }
 
         return new Created({
-            message: 'Registration successful',
+            message: 'Registration successful. Please check your email to verify.',
         }).send(res);
     } catch (error) {
         return next(error);
@@ -116,12 +122,10 @@ const login = async (req, res, next) => {
 
         setCookie(res, accessToken, refreshToken);
 
-        const { password: _, verificationToken, resetPasswordExpires, resetPasswordToken, ...userFilted } = user;
-
         return new OK({
             message: 'Login successful',
             metadata: {
-                user: userFilted
+                user: filterSensitiveUserFields(user)
             }
         }).send(res);
     } catch (error) {
@@ -167,7 +171,7 @@ const logout = async (req, res, next) => {
         const { id } = req.user;
 
         const user = await prisma.user.findUnique({ where: { id } });
-        if (!user) throw new NotFoundError('User not found');
+        if (!user) throw new NotFoundError('Invalid Id or User not found');
 
         res.clearCookie('accessToken');
         res.clearCookie('refreshToken');
@@ -293,7 +297,7 @@ const changePasswordWithOtp = async (req, res, next) => {
 
         await prisma.$transaction(async (tx) => {
             const user = await prisma.user.findFirst({ where: { email: decoded.email } });
-            if (!user) throw new BadRequestError("User not found");
+            if (!user) throw new BadRequestError("Invalid Email or User not found");
 
             const updated = await prisma.user.update({
                 where: { id: user.id },
@@ -322,10 +326,8 @@ const sendVerificationEmail = async (req, res, next) => {
     try {
         const userId = req.user.id;
 
-        const user = await prisma.user.findUnique({
-            where: { id: userId }
-        });
-        if (!user) throw new BadRequestError("User not found");
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) throw new NotFoundError('Invalid Id or User not found');
         if (user.isEmailVerified) return new OK({ message: "Email already verified" }).send(res);
 
         const verificationToken = jwt.sign(
@@ -357,7 +359,6 @@ const sendVerificationEmail = async (req, res, next) => {
 const verifyEmail = async (req, res, next) => {
     try {
         const { token } = req.query;
-        console.log(token);
 
         if (!token) throw new BadRequestError("Verification token is required");
 
@@ -370,9 +371,6 @@ const verifyEmail = async (req, res, next) => {
             }
             throw new BadRequestError('Invalid verification token');
         }
-
-        console.log(decoded);
-
 
         await prisma.$transaction(async (tx) => {
             const user = await tx.user.findUnique({ where: { id: decoded.userId } });
