@@ -1,90 +1,121 @@
-const cloudinary = require('../config/cloudinary.config');
-const { updateProfileSchema } = require('../middlewares/validator/user.validator');
-const { User } = require('../models');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 const createError = require('http-errors');
 const { deleteImage } = require('../utils/cloudinary.helper');
+const { updateProfileSchema, getAllUsersSchema, updateUserByAdminSchema } = require('../middlewares/validations/user.validation');
+const { filterSensitiveUserFields } = require('../utils/filterSensitiveUserFields');
+const { NotFoundError, BadRequestError, ConflictRequestError } = require('../utils/core/errorResponse');
+const { OK } = require('../utils/core/successResponse');
+const { USER_PUBLIC_SELECT, USER_PUBLIC_SELECT_WITH_DELETE, USER_PUBLIC_SELECT_ADMIN_GET } = require('../prisma/constants/prisma-selects');
 
 // get current user profile
 const getProfile = async (req, res, next) => {
     try {
-        const user = await User.findByPk(req.user.id, {
-            include: [
-                {
-                    association: 'addresses',
-                    attributes: { exclude: ['userId'] },
-                },
-            ],
+        const user = await prisma.user.findUnique({
+            where: { id: req.user.id },
+            include: {
+                addresses: true
+            }
         });
 
-        if (!user) return next(createError(400, 'User not found'));
+        if (!user) throw new NotFoundError('User not found');
 
-        return res.status(200).json({
-            success: true,
-            user: user,
-        });
+        // Xóa cột userId khỏi mỗi address
+        if (user?.addresses) {
+            user.addresses = user.addresses.map(({ userId, ...address }) => address);
+        }
+
+        return OK({
+            message: 'Get user successfully',
+            metadata: {
+                user: filterSensitiveUserFields(user),
+            }
+        }).send(res);
     } catch (error) {
-        next(error);
+        return next(error);
     }
 }
 
 const updateProfile = async (req, res, next) => {
     try {
-        const { firstName, lastName, phone } = req.body;
-        const userId = req.user.id;
-        const email = req.user.email;
+        const id = req.user.id;
 
-        const { error } = updateProfileSchema.validate({ ...req.body, userId, email }, { abortEarly: false }) // abortEarly: false tức là trả về tất cả lỗi, không dừng ở lỗi đầu tiên
+        const { error, value } = updateProfileSchema.validate({ ...req.body, id }, { abortEarly: false }) // abortEarly: false tức là trả về tất cả lỗi, không dừng ở lỗi đầu tiên
         if (error) {
             const errorMessages = error.details.map(detail => detail.message).join(', ');
-            return next(createError(400, errorMessages))
+            throw new BadRequestError(errorMessages);
         }
 
-        if (email) {
-            const existingUser = await User.findOne({ where: { email } });
-            if (existingUser && existingUser.id !== userId) {
-                return next(createError(409, 'Email already exists'));
-            }
-        }
+        const user = await prisma.user.findUnique({
+            where: { id, isDeleted: false },
+            select: USER_PUBLIC_SELECT
+        });
+        if (!user) throw new NotFoundError('User not found');
 
-        await req.user.update({
-            ...(firstName && { firstName }),
-            ...(lastName && { lastName }),
-            ...(phone && { phone }),
+        await prisma.user.update({
+            where: { id },
+            data: value
         });
 
-        return res.json({
-            success: true,
-            message: 'Profile updated successfully',
-            data: req.user,
-        });
+        return OK({
+            message: 'Profile updated successfully'
+        }).send(res);
     } catch (error) {
         next(error);
     }
 }
 
-const uploadAvatar = async (req, res, next) => {
-    console.log(req.file);
+const changePassword = async (req, res, next) => {
     try {
-
-        if (!req.file) return next(createError(400, 'Please upload an image file'));
-
-        const avatarUrl = req.file.path;
-
-        // neu co avatar cu thi xoa
-        if (req.user.avatar?.includes('cloudinary') || !avatarUrl.includes('default.png')) {
-            await deleteImage(req.user.avatar, 'shop.co/avatars');
+        const { oldPassword, newPassword } = req.body;
+        const { id } = req.query;
+        const { error } = changePasswordSchema.validate({ ...req.body, id }, { abortEarly: false });
+        if (error) {
+            const errorMessages = error.details.map(detail => detail.message).join(', ');
+            throw new BadRequestError(errorMessages);
         }
 
-        // update vao db
-        await req.user.update({ avatar: avatarUrl });
+        const user = await prisma.user.findUnique({ where: { id } });
+        if (!user) throw new NotFoundError('User not found');
 
-        return res.json({
-            success: true,
-            message: 'Avatar uploaded successfully',
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) throw new AuthFailureError('Old password is incorrect');
+
+        await prisma.user.update({
+            where: { id: user.id },
             data: {
-                avatar: avatarUrl,
-            },
+                password: await hashedPassword(newPassword),
+                password_changed_at: new Date(),
+            }
+        })
+
+        return new OK({
+            message: 'Password changed successfully',
+        }).send(res);
+    } catch (error) {
+        return next(error);
+    }
+}
+
+const uploadAvatar = async (req, res, next) => {
+    try {
+        if (!req.file) return next(createError(400, 'Please upload an image file'));
+        const avatarUrl = req.file.path;
+
+        // update vao db
+        await prisma.user.update({
+            where: { id: req.user.id },
+            data: { avatarUrl }
         });
+
+        // neu co avatar cu thi xoa
+        if (req.user.avatarUrl && req.user.avatarUrl.includes('cloudinary')) {
+            await deleteImage(req.user.avatarUrl, 'shop.co/avatars');
+        }
+
+        return OK({
+            message: 'Avatar uploaded successfully'
+        }).send(res);
     } catch (error) {
         // neu co loi va da upload len cloudinary thi phai xoa
         if (req.file && req.file.filename) {
@@ -97,26 +128,284 @@ const uploadAvatar = async (req, res, next) => {
 // delete avatar (set về default)
 const deleteAvatar = async (req, res, next) => {
     try {
-        if (!req.user.avatar) return next(createError(400, 'No avatar to delete'));
+        if (!req.user.avatarUrl || req.user.avatarUrl.includes('default.png')) return next(createError(400, 'No avatar to delete'));
 
-        await deleteImage(req.file.path, 'shop.co/avatars');
+        const oldAvatarUrl = req.user.avatar;
+
+        if (oldAvatarUrl.includes('cloudinary')) {
+            await deleteImage(oldAvatarUrl, 'shop.co/avatars');
+        }
 
         // cap nhat database
-        await req.user.update({ avatar: null });
-
-        return res.json({
-            success: true,
-            message: 'Avatar deleted successfully',
+        await prisma.user.update({
+            where: { id: req.user.id },
+            data: {
+                avatarUrl: `${process.env.FE_URL}/default.png`
+            }
         });
+
+        return OK({ message: 'Avatar deleted successfully' }).send(res);
     } catch (error) {
         next(error);
     }
 };
 
+const getAllUsers = async (req, res, next) => {
+    try {
+        const { error, value } = getAllUsersSchema.validate(req.query, {
+            abortEarly: false, // lấy tất cả các lỗi
+            stripUnknown: true // bỏ các trường ko đc định nghĩa trong joi schema
+        });
+        if (error) {
+            const errorMessages = error.details.map(detail => detail.message).join(', ');
+            throw new BadRequestError(errorMessages);
+        }
+
+        const {
+            page, limit, sortBy, sortOrder, search,
+            role, isEmailVerified, isActive, createdFrom,
+            createdTo, phone, isDeleted, deletedBy, deletedFrom, deletedTo
+        } = value;
+
+        const skip = (page - 1) * limit;
+
+        const where = {};
+
+        // search filter
+        if (search && search.trim()) {
+            where.OR = [
+                { email: { contains: search, mode: 'insensitive' } },
+                { firstName: { contains: search, mode: 'insensitive' } },
+                { lastName: { contains: search, mode: 'insensitive' } },
+                { phone: { contains: search, mode: 'insensitive' } },
+            ]
+        }
+
+        // role filter
+        if (role) where.role = role;
+
+        // isActive filter
+        if (isActive !== undefined) where.isActive = isActive;
+
+        // email verification filter
+        if (isEmailVerified !== undefined) where.isEmailVerified = isEmailVerified;
+
+        // isDeleted
+        if (isDeleted !== undefined) where.isDeleted = isDeleted;
+
+        // isDelectedBy
+        if (deletedBy !== undefined) where.deletedBy = deletedBy;
+
+        // phone filter
+        if (phone) where.phone = phone;
+
+        // date range filter
+        if (createdFrom || createdTo) {
+            where.createdAt = {};
+            if (createdFrom) where.createdAt.gte = new Date(createdFrom);
+            if (createdTo) where.createdAt.lte = new Date(createdTo);
+        }
+        if (deletedFrom || deletedTo) {
+            where.createdAt = {};
+            if (deletedFrom) where.createdAt.gte = new Date(deletedFrom);
+            if (deletedTo) where.createdAt.lte = new Date(deletedTo);
+        }
+
+        // orderby
+        const orderBy = {
+            [sortBy]: sortOrder
+        };
+
+        const [users, totalCount] = await Promise.all([
+            prisma.user.findMany({
+                where,
+                orderBy,
+                skip,
+                take: limit,
+                select: USER_PUBLIC_SELECT
+            }),
+            prisma.user.count({ where })
+        ])
+
+        const totalPages = Math.ceil(totalCount / limit);
+        const hasNextPage = page < totalPages;
+        const hasPrevPage = page > 1;
+
+        return new OK({
+            message: 'Get all users successfully',
+            metadata: {
+                pagination: {
+                    currentPage: page,
+                    totalPages,
+                    totalCount,
+                    limit,
+                    hasPrevPage,
+                    hasNextPage,
+                },
+                users
+            }
+        }).send(res);
+    } catch (error) {
+        return next(error);
+    }
+}
+
+const getUserById = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const user = await prisma.user.findUnique({
+            where: { id },
+            select: USER_PUBLIC_SELECT_ADMIN_GET
+        });
+        if (!user) throw new NotFoundError('Invalid Id or User not found');
+
+        return new OK({
+            message: "Get user successfully",
+            metadata: {
+                user
+            }
+        }).send(res);
+    } catch (error) {
+        return next(error);
+    }
+}
+
+const updateUser = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const actor = req.user;
+
+        // if (id === actor.id) {
+        //     throw new BadRequestError('Cannot update your own account via admin endpoint. Use profile update instead.');
+        // }
+
+        const { error, value } = updateUserByAdminSchema.validate(req.body, { abortEarly: false });
+        if (error) {
+            const errorMessages = error.details.map(detail => detail.message).join(', ');
+            throw new BadRequestError(errorMessages);
+        }
+        if (Object.keys(value).length === 0) throw new BadRequestError('No fields to update');
+
+        let updatedUser;
+        await prisma.$transaction(async (tx) => {
+            const user = await tx.user.findUnique({
+                where: { id },
+                select: USER_PUBLIC_SELECT
+            });
+            if (!user) throw new NotFoundError('Invalid Id or User not found or has been deleted');
+
+            // Prevent changing role to ADMIN if there's only one admin left
+            if (value.role && user.role === 'ADMIN' && value.role !== 'ADMIN') {
+                const adminCount = await tx.user.count({
+                    where: {
+                        role: 'ADMIN',
+                        isActive: true,
+                        isDeleted: false,
+                        id: { not: id }
+                    }
+                });
+                if (adminCount === 0) throw new ForbiddenError('Cannot change role of the last active admin');
+            }
+
+            // Prevent deactivating last admin
+            if (value.isActive && user.isActive === 'ADMIN' && value.isActive !== true) {
+                const adminCount = await tx.user.count({
+                    where: {
+                        role: 'ADMIN',
+                        isActive: true,
+                        isDeleted: false,
+                        id: { not: id }
+                    }
+                });
+                if (adminCount === 0) throw new ForbiddenError('Cannot deactivate the last active admin');
+            }
+
+            if (value.isDeleted !== user.isDeleted) {
+                value.deletedBy = actor.id;
+                value.deletedAt = new Date();
+            }
+
+            updatedUser = await tx.user.update({
+                where: { id },
+                data: value,
+                select: USER_PUBLIC_SELECT_WITH_DELETE
+            })
+        })
+
+        // Track what changed for logging
+        // const changes = {};
+        // Object.keys(value).forEach(key => {
+        //     if (userToUpdate[key] !== value[key]) {
+        //         changes[key] = {
+        //             from: userToUpdate[key],
+        //             to: value[key]
+        //         };
+        //     }
+        // });
+
+        // You can also save to database audit log:
+        // await tx.auditLog.create({
+        //     data: {
+        //         action: 'USER_UPDATE',
+        //         performedBy: adminId,
+        //         targetUserId: id,
+        //         changes: JSON.stringify(changes),
+        //         timestamp: new Date()
+        //     }
+        // });
+
+        return new OK({
+            message: 'User updated successfully',
+            metadata: updatedUser
+        }).send(res);
+    } catch (error) {
+        return next(error);
+    }
+}
+
+const toggleSoftDeleteUser = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const actor = req.user.id;
+
+        const user = await prisma.user.findUnique({ where: { id } })
+        if (!user) throw new NotFoundError('Invalid Id or User not found');
+
+        const data = {
+            isDeleted: false,
+            deletedAt: new Date(),
+            deletedBy: actor.id
+        };
+        let message = "";
+
+        if (user.isDeleted) {
+            data.isDeleted = false;
+            message = id !== actor.id ? "Recover the user successfully" : "Recover your account successfully";
+        } else if (!user.isDeleted) {
+            data.isDeleted = true;
+            message = id !== actor.id ? "Delete the user successfully" : "You have successfully deleted your account";
+        }
+
+        await prisma.user.update({
+            where: { id },
+            data
+        })
+
+        return new OK({ message }).send(res);
+    } catch (error) {
+        return next(error);
+    }
+}
 
 module.exports = {
     getProfile,
     updateProfile,
+    changePassword,
     uploadAvatar,
-    deleteAvatar
+    deleteAvatar,
+    getAllUsers,
+    getUserById,
+    updateUser,
+    toggleSoftDeleteUser,
 }

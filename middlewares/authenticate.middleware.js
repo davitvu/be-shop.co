@@ -2,6 +2,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const jwt = require('jsonwebtoken');
 const { AuthFailureError, NotFoundError, ForbiddenError } = require('../utils/core/errorResponse');
+const { filterSensitiveUserFields } = require('../utils/filterSensitiveUserFields');
 
 const authenticate = async (req, res, next) => {
     try {
@@ -18,8 +19,7 @@ const authenticate = async (req, res, next) => {
         if (!user) throw new NotFoundError('User not found');
         if (!user.isActive) ForbiddenError('Your account has been locked. Please contact administrator');
 
-        const { password, verificationToken, resetPasswordToken, resetPasswordExpires, password_changed_at, ...userFiltered } = user;
-        req.user = userFiltered;
+        req.user = filterSensitiveUserFields(user);
         next();
     } catch (error) {
         if (error.name === 'JsonWebTokenError') throw new AuthFailureError('Invalid token');
@@ -45,7 +45,7 @@ const optionalAuth = async (req, res, next) => {
         if (!user) throw new NotFoundError('User not found');
         if (!user.isActive) ForbiddenError('Your account has been locked. Please contact administrator');
 
-        req.user = user;
+        req.user = filterSensitiveUserFields(user);
         next();
     } catch (error) {
         if (error.name === 'JsonWebTokenError') throw new AuthFailureError('Invalid token');
@@ -54,4 +54,4 @@ const optionalAuth = async (req, res, next) => {
     }
 }
 
-module.exports = { authenticate }
+module.exports = { authenticate, optionalAuth }

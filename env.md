@@ -1,7 +1,7 @@
 # Server
 NODE_ENV=development
 PORT=
-API_URL=
+FE_URL=
 
 # Database (PostgreSQL)
 DATABASE_URL=
@@ -17,6 +17,7 @@ EMAIL_USER=
 CLIENT_ID=
 CLIENT_SECRET=
 REDIRECT_URI=
+MAIL_REFRESH_TOKEN=
 
 # Cloudinary
 CLOUDINARY_CLOUD_NAME=
