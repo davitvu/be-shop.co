@@ -92,7 +92,7 @@ const register = async (req, res, next) => {
             message: 'Registration successful. Please check your email to verify.',
         }).send(res);
     } catch (error) {
-        return next(error);
+        next(error);
     }
 }
 
@@ -129,7 +129,7 @@ const login = async (req, res, next) => {
             }
         }).send(res);
     } catch (error) {
-        return next(error)
+        next(error)
     }
 }
 
@@ -160,7 +160,7 @@ const refreshToken = async (req, res, next) => {
             message: 'Token refreshed successfully',
         });
     } catch (error) {
-        return next(error);
+        next(error);
     }
 }
 
@@ -180,7 +180,7 @@ const logout = async (req, res, next) => {
             message: 'Logout successful. Please remove tokens from client storage.',
         });
     } catch (error) {
-        return next(error);
+        next(error);
     }
 }
 
@@ -223,7 +223,7 @@ const forgotPassword = async (req, res, next) => {
             message: "Send email success, check your email",
         }).send(res);
     } catch (error) {
-        return next(error);
+        next(error);
     }
 }
 
@@ -271,7 +271,7 @@ const verifyOtpForgotPassword = async (req, res, next) => {
 
         return new OK({ message: 'OTP verification successful' }).send(res);
     } catch (error) {
-        return next(error);
+        next(error);
     }
 }
 
@@ -318,7 +318,7 @@ const changePasswordWithOtp = async (req, res, next) => {
 
         return new OK({ message: "Password changed successfully" }).send(res);
     } catch (error) {
-        return next(error);
+        next(error);
     }
 }
 
@@ -352,7 +352,7 @@ const sendVerificationEmail = async (req, res, next) => {
             message: "Verification email sent successfully. Please check your inbox."
         }).send(res);
     } catch (error) {
-        return next(error);
+        next(error);
     }
 }
 
@@ -401,7 +401,7 @@ const verifyEmail = async (req, res, next) => {
             message: "Email verified successfully!"
         }).send(res);
     } catch (error) {
-        return next(error);
+        next(error);
     }
 }
 
