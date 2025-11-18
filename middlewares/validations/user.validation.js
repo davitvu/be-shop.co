@@ -73,7 +73,7 @@ const getAllUsersSchema = Joi.object({
     sortOrder: Joi.string().valid('asc', 'desc').default('desc'),
 
     // Filtering
-    search: Joi.string().trim().allow('').optional(), // Search in email, firstName, lastName, phone
+    search: Joi.string().trim().allow('').optional(), // Search by id, email, firstName, lastName, phone
     role: Joi.string().uppercase().valid('USER', 'ADMIN', 'MANAGER').optional(),
     isActive: Joi.boolean().optional(),
     isEmailVerified: Joi.boolean().optional(),
@@ -83,7 +83,8 @@ const getAllUsersSchema = Joi.object({
     // Date range filters
     createdFrom: Joi.date().iso().optional(),
     createdTo: Joi.date().iso().optional(),
-
+    updatedFrom: Joi.date().iso().optional(),
+    updatedTo: Joi.date().iso().optional(),
     deletedFrom: Joi.date().iso().optional(),  
     deletedTo: Joi.date().iso().optional(),
 

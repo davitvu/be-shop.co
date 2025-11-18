@@ -6,7 +6,7 @@ const { updateProfileSchema, getAllUsersSchema, updateUserByAdminSchema } = requ
 const { filterSensitiveUserFields } = require('../utils/filterSensitiveUserFields');
 const { NotFoundError, BadRequestError, ConflictRequestError } = require('../utils/core/errorResponse');
 const { OK } = require('../utils/core/successResponse');
-const { USER_PUBLIC_SELECT, USER_PUBLIC_SELECT_WITH_DELETE, USER_PUBLIC_SELECT_ADMIN_GET } = require('../prisma/constants/prisma-selects');
+const { USER_PUBLIC_SELECT, USER_WITH_DELETED_SELECT, USER_GET_ADMIN_SELECT } = require('../prisma/constants/user-selects');
 
 // get current user profile
 const getProfile = async (req, res, next) => {
@@ -17,7 +17,6 @@ const getProfile = async (req, res, next) => {
                 addresses: true
             }
         });
-
         if (!user) throw new NotFoundError('User not found');
 
         // Xóa cột userId khỏi mỗi address
@@ -32,7 +31,7 @@ const getProfile = async (req, res, next) => {
             }
         }).send(res);
     } catch (error) {
-        return next(error);
+        next(error);
     }
 }
 
@@ -93,7 +92,7 @@ const changePassword = async (req, res, next) => {
             message: 'Password changed successfully',
         }).send(res);
     } catch (error) {
-        return next(error);
+        next(error);
     }
 }
 
@@ -164,16 +163,17 @@ const getAllUsers = async (req, res, next) => {
         const {
             page, limit, sortBy, sortOrder, search,
             role, isEmailVerified, isActive, createdFrom,
-            createdTo, phone, isDeleted, deletedBy, deletedFrom, deletedTo
+            createdTo, phone, isDeleted, deletedBy, deletedFrom, deletedTo,
+            updatedFrom, updatedTo
         } = value;
 
         const skip = (page - 1) * limit;
 
-        const where = {};
-
         // search filter
+        const where = {};
         if (search && search.trim()) {
             where.OR = [
+                { id: { contains: search, mode: 'insensitive' } },
                 { email: { contains: search, mode: 'insensitive' } },
                 { firstName: { contains: search, mode: 'insensitive' } },
                 { lastName: { contains: search, mode: 'insensitive' } },
@@ -205,16 +205,19 @@ const getAllUsers = async (req, res, next) => {
             if (createdFrom) where.createdAt.gte = new Date(createdFrom);
             if (createdTo) where.createdAt.lte = new Date(createdTo);
         }
+        if (updatedFrom || updatedTo) {
+            where.updatedAt = {};
+            if (updatedFrom) where.updatedAt.gte = new Date(updatedFrom);
+            if (updatedTo) where.updatedAt.lte = new Date(updatedTo);
+        }
         if (deletedFrom || deletedTo) {
-            where.createdAt = {};
-            if (deletedFrom) where.createdAt.gte = new Date(deletedFrom);
-            if (deletedTo) where.createdAt.lte = new Date(deletedTo);
+            where.deletedAt = {};
+            if (deletedFrom) where.deletedAt.gte = new Date(deletedFrom);
+            if (deletedTo) where.deletedAt.lte = new Date(deletedTo);
         }
 
         // orderby
-        const orderBy = {
-            [sortBy]: sortOrder
-        };
+        const orderBy = { [sortBy]: sortOrder };
 
         const [users, totalCount] = await Promise.all([
             prisma.user.findMany({
@@ -246,7 +249,7 @@ const getAllUsers = async (req, res, next) => {
             }
         }).send(res);
     } catch (error) {
-        return next(error);
+        next(error);
     }
 }
 
@@ -256,7 +259,7 @@ const getUserById = async (req, res, next) => {
 
         const user = await prisma.user.findUnique({
             where: { id },
-            select: USER_PUBLIC_SELECT_ADMIN_GET
+            select: USER_GET_ADMIN_SELECT
         });
         if (!user) throw new NotFoundError('Invalid Id or User not found');
 
@@ -267,7 +270,7 @@ const getUserById = async (req, res, next) => {
             }
         }).send(res);
     } catch (error) {
-        return next(error);
+        next(error);
     }
 }
 
@@ -329,7 +332,7 @@ const updateUser = async (req, res, next) => {
             updatedUser = await tx.user.update({
                 where: { id },
                 data: value,
-                select: USER_PUBLIC_SELECT_WITH_DELETE
+                select: USER_WITH_DELETED_SELECT
             })
         })
 
@@ -360,7 +363,7 @@ const updateUser = async (req, res, next) => {
             metadata: updatedUser
         }).send(res);
     } catch (error) {
-        return next(error);
+        next(error);
     }
 }
 
@@ -394,7 +397,7 @@ const toggleSoftDeleteUser = async (req, res, next) => {
 
         return new OK({ message }).send(res);
     } catch (error) {
-        return next(error);
+        next(error);
     }
 }
 
