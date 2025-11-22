@@ -3,6 +3,16 @@ const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('./cloudinary.config');
 const createError = require('http-errors');
 
+const fileFilter = (req, file, cb) => {
+    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png'];
+
+    if (allowedMimes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(createError(400, 'Only image files are allowed (jpeg, jpg, png)'), false);
+    }
+};
+
 // avatar config
 const avatarStorage = new CloudinaryStorage({
     cloudinary,
@@ -18,6 +28,15 @@ const avatarStorage = new CloudinaryStorage({
     }
 });
 
+// avatar (single file)
+const uploadAvatar = multer({
+    storage: avatarStorage,
+    fileFilter: fileFilter,
+    limits: {
+        fileSize: 5 * 1024 * 1024, // 5MB
+    }
+});
+
 // product config
 const productStorage = new CloudinaryStorage({
     cloudinary,
@@ -28,25 +47,6 @@ const productStorage = new CloudinaryStorage({
         public_id: (req, file) => {
             return `product-${Date.now()}-${Math.round(Math.random() * 1E9)}`;
         }
-    }
-});
-
-const fileFilter = (req, file, cb) => {
-    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png'];
-
-    if (allowedMimes.includes(file.mimetype)) {
-        cb(null, true);
-    } else {
-        cb(createError(400, 'Only image files are allowed (jpeg, jpg, png)'), false);
-    }
-};
-
-// avatar (single file)
-const uploadAvatar = multer({
-    storage: avatarStorage,
-    fileFilter: fileFilter,
-    limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB
     }
 });
 

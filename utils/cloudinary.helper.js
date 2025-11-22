@@ -22,12 +22,16 @@ const deleteImage = async (imageUrl, folder) => {
 // xoa nhieu anh
 const deleteMultipleImages = async (imageUrls, folder) => {
     try {
+        if (!Array.isArray(imageUrls) || imageUrls.length === 0) {
+            return { success: false, message: 'No image URLs provided' };
+        }
+
         const publicIds = imageUrls
-            .filter(url => url && url.includes('cloudinary'))
+            .filter(url => typeof url === 'string' && url.includes('cloudinary'))
             .map(url => {
-                const urlParts = imageUrl.split('/');
+                const urlParts = url.split('/');
                 const publicId = urlParts[urlParts.length - 1].split('.')[0];
-                return `${folder}/${publicId}`;
+                return folder ? `${folder}/${publicId}` : publicId;;
             })
 
         if (publicIds.length === 0) {
