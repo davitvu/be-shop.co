@@ -149,7 +149,7 @@ model Style {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
-@@index([slug])
+  @@index([slug])
   @@map("styles")
 }
 
@@ -213,8 +213,8 @@ model ProductVariant {
   colorId     String?
   color       Color?         @relation(fields: [colorId], references: [id])
   sizeId      String?
-  Size        Size?          @relation(fields: [sizeId], references: [id])
-  sku         String?        @unique
+  size        Size?          @relation(fields: [sizeId], references: [id])
+  sku         String         @unique
   price       Decimal        @db.Decimal(12, 2) // nếu không có giá riêng thì dùng giá chung, nếu có thì ghi đè giá chung
   stock       Int            @default(0)
   isPublished Boolean        @default(true)
@@ -227,6 +227,7 @@ model ProductVariant {
   @@unique([productId, colorId, sizeId]) // đảm bảo tổ hợp (product + color + size) chỉ có 1 variant
   @@index([productId])
   @@index([colorId])
+  @@index([sku])
   @@index([sizeId])
   @@map("product_variants")
 }
