@@ -8,6 +8,7 @@ const variantRoutes = require('./variant.route');
 const colorRoutes = require('./color.route');
 const sizeRoutes = require('./size.route');
 const styleRoutes = require('./style.route');
+const cartRoutes = require('./cart.route');
 
 /** Client */
 router.use('/auth', authRoutes);
@@ -19,6 +20,7 @@ router.use('/variants', variantRoutes);
 router.use('/colors', colorRoutes);
 router.use('/sizes', sizeRoutes);
 router.use('/styles', styleRoutes);
+router.use('/cart', cartRoutes);
 
 /** Admin */
 
