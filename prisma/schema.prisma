@@ -140,14 +140,14 @@ model Size {
 }
 
 model Style {
-  id            String         @id @default(uuid())
-  name          String         @unique
-  slug          String         @unique
-  description   String?
-  isActive      Boolean        @default(true)
-  productStyles ProductStyle[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  id          String         @id @default(uuid())
+  name        String         @unique
+  slug        String         @unique
+  description String?
+  isActive    Boolean        @default(true)
+  styles      ProductStyle[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   @@index([slug])
   @@map("styles")
