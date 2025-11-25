@@ -5,6 +5,10 @@ const userRoutes = require('./user.routes');
 const productRoutes = require('./product.routes');
 const categoryRoutes = require('./category.routes');
 const variantRoutes = require('./variant.route');
+const colorRoutes = require('./color.route');
+const sizeRoutes = require('./size.route');
+const styleRoutes = require('./style.route');
+const cartRoutes = require('./cart.route');
 
 /** Client */
 router.use('/auth', authRoutes);
@@ -13,6 +17,10 @@ router.use('/users', userRoutes);
 router.use('/products', productRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/variants', variantRoutes);
+router.use('/colors', colorRoutes);
+router.use('/sizes', sizeRoutes);
+router.use('/styles', styleRoutes);
+router.use('/cart', cartRoutes);
 
 /** Admin */
 
