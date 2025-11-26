@@ -9,8 +9,8 @@ const colorRoutes = require('./color.route');
 const sizeRoutes = require('./size.route');
 const styleRoutes = require('./style.route');
 const cartRoutes = require('./cart.route');
+const orderRoutes = require('./order.route');
 
-/** Client */
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/addresses', addressRoutes);
@@ -21,9 +21,7 @@ router.use('/colors', colorRoutes);
 router.use('/sizes', sizeRoutes);
 router.use('/styles', styleRoutes);
 router.use('/cart', cartRoutes);
-
-/** Admin */
-
+router.use('/orders', orderRoutes);
 
 // health & check
 router.get("/", (req, res) => {

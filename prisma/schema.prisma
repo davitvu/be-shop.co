@@ -18,19 +18,46 @@ enum UserRole {
   USER
   ADMIN
   MANAGER
+
+  @@map("user_role")
 }
 
 enum OrderStatus {
-  PENDING
-  PAID
-  SHIPPED
-  COMPLETED
-  CANCELED
+  PENDING // chờ xác nhận
+  CONFIRMED // đã xác nhận
+  PROCESSING // đang xử lý
+  SHIPPING // đang giao hàng
+  DELIVERED // đã giao hàng
+  CANCELLED // đã hủy
+  REFUNDED // đã hoàn tiền
+
+  @@map("order_status")
+}
+
+enum PaymentMethod {
+  COD
+  VNPAY
+  MOMO
+  STRIPE
+  PAYPAL
+
+  @@map("payment_method")
+}
+
+enum PaymentStatus {
+  PENDING // chờ thanh toán
+  PAID // dã thanh toán
+  FAILED // thanh toán thất bại
+  REFUNDED // dã hoàn tiền
+
+  @@map("payment_status")
 }
 
 enum AddressType {
   HOME
   OFFICE
+
+  @@map("address_type")
 }
 
 // --- Models ---
@@ -60,6 +87,7 @@ model User {
   updatedAt                DateTime  @updatedAt
   addresses                Address[]
   cart                     Cart?
+  Order                    Order[]
 
   @@index([role])
   @@index([isActive])
@@ -171,7 +199,7 @@ model Product {
   name        String
   slug        String           @unique
   description String?
-  price       Decimal          @db.Decimal(12, 2)
+  price       Int
   stock       Int              @default(0)
   isPublished Boolean          @default(false)
   categoryId  String
@@ -217,7 +245,7 @@ model ProductVariant {
   sizeId      String?
   size        Size?          @relation(fields: [sizeId], references: [id])
   sku         String         @unique
-  price       Decimal        @db.Decimal(12, 2) // nếu không có giá riêng thì dùng giá chung, nếu có thì ghi đè giá chung
+  price       Int // nếu không có giá riêng thì dùng giá chung, nếu có thì ghi đè giá chung
   stock       Int            @default(0)
   isPublished Boolean        @default(true)
   images      ProductImage[] // ảnh riêng cho variant này (nếu có)
@@ -261,4 +289,84 @@ model CartItem {
   @@index([cartId])
   @@index([variantId])
   @@map("cart_items")
+}
+
+model Order {
+  id          String @id @default(uuid())
+  orderNumber String @unique
+  userId      String
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // shipping address (snapshot at time of order)
+  shippingName     String
+  shippingPhone    String
+  shippingAddress  String
+  shippingWard     String
+  shippingDistrict String
+  shippingCity     String
+
+  // order details
+  subtotal    Int
+  shippingFee Int
+  tax         Int
+  discount    Int
+  total       Int
+
+  // payment
+  paymentMethod PaymentMethod
+  paymentStatus PaymentStatus @default(PENDING)
+  paidAt        DateTime?
+
+  // status
+  status OrderStatus @default(PENDING)
+
+  // notes
+  notes      String? @db.Text
+  adminNotes String? @db.Text
+
+  // Relations
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([orderNumber])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id      String @id @default(uuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // product snapshot at time of order
+  productId   String
+  productName String
+  productSlug String
+
+  // variant snapshot
+  variantId  String
+  variantSku String?
+  colorName  String?
+  colorHex   String?
+  sizeName   String?
+  sizeValue  String?
+
+  // Image snapshot
+  imageUrl String?
+
+  // pricing snapshot
+  price    Int
+  quantity Int
+  subtotal Int // price * quantity
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@map("order_items")
 }
