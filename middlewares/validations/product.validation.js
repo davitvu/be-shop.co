@@ -23,9 +23,10 @@ const createProductSchema = Joi.object({
         'string.empty': 'Category is required',
         'string.guid': 'Invalid category ID format'
     }),
-    styleIds: Joi.array().items(Joi.string()).min(1).optional().messages({
-        'array.min': 'At least one style must be selected if provided',
-        'string.guid': 'Invalid style ID format'
+    styleIds: Joi.array().items(Joi.string()).min(1).required().messages({
+        'array.base': 'Styles must be an array',
+        'array.min': 'You must select at least one style',
+        'any.required': 'Styles are required, you must select at least one style'
     }),
     isPublished: Joi.boolean().default(false)
 });

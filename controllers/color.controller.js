@@ -66,9 +66,10 @@ const getAllColorsAdmin = async (req, res, next) => {
 
         if (search) {
             where.OR = [
-                { contains: search, mode: 'insensitive' },
-                { contains: hex, mode: 'insensitive' }
-            ]
+                { id: { contains: search, mode: 'insensitive' } },
+                { name: { contains: search, mode: 'insensitive' } },
+                { hex: { contains: search, mode: 'insensitive' } }
+            ];
         }
         if (isActive !== undefined) where.isActive = isActive;
 
@@ -96,29 +97,29 @@ const getAllColorsAdmin = async (req, res, next) => {
             prisma.color.count({ where })
         ]);
 
-const formattedColors = colors.map(color => ({
-    ...colors,
-    variantCount: color._count.variants
-}));
-const totalPages = Math.ceil(totalCount / limit);
+        const formattedColors = colors.map(color => ({
+            ...colors,
+            variantCount: color._count.variants
+        }));
+        const totalPages = Math.ceil(totalCount / limit);
 
-return new OK({
-    message: 'Get colors successfully',
-    metadata: {
-        pagination: {
-            currentPage: page,
-            totalPages,
-            totalCount,
-            limit,
-            hasPrevPage: page > 1,
-            hasNextPage: page < totalPages
-        },
-        colors: formattedColors,
-    }
-}).send(res);
+        return new OK({
+            message: 'Get colors successfully',
+            metadata: {
+                pagination: {
+                    currentPage: page,
+                    totalPages,
+                    totalCount,
+                    limit,
+                    hasPrevPage: page > 1,
+                    hasNextPage: page < totalPages
+                },
+                colors: formattedColors,
+            }
+        }).send(res);
     } catch (error) {
-    next(error);
-}
+        next(error);
+    }
 };
 
 const getAllColorsClient = async (req, res, next) => {

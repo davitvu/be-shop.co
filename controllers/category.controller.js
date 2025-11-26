@@ -3,7 +3,7 @@ const { createCategorySchema, getAllCategoriesSchema, updateCategorySchema } = r
 const { BadRequestError, ConflictRequestError, NotFoundError } = require('../utils/core/errorResponse');
 const { Created, OK } = require('../utils/core/successResponse');
 const { CATEGORY_PUBLIC_SELECT, CATEGORY_WITH_PRODUCTS_SELECT, CATEGORY_WITH_DELETED_SELECT, CATEGORY_WITH_PRODUCTS_DELETED_SELECT } = require('../prisma/constants/category-selects');
-const { default: slugify } = require('slugify');
+const { generateSlugAndCheckExists } = require('../utils/generateSlug');
 const prisma = new PrismaClient();
 
 // ==================== CLIENT APIS ====================
@@ -68,8 +68,6 @@ const getAllCategoriesClient = async (req, res, next) => {
         ])
 
         const totalPages = Math.ceil(totalCount / limit);
-        const hasNextPage = page < totalPages;
-        const hasPrevPage = page > 1;
 
         return new OK({
             message: 'Get categories successfully',
@@ -79,8 +77,8 @@ const getAllCategoriesClient = async (req, res, next) => {
                     totalPages,
                     totalCount,
                     limit,
-                    hasPrevPage,
-                    hasNextPage,
+                    hasPrevPage: page > 1,
+                    hasNextPage: page < totalPages
                 },
                 categories
             }
@@ -120,7 +118,7 @@ const getAllCategoriesAdmin = async (req, res, next) => {
                 { id: { contains: search, mode: 'insensitive' } },
                 { name: { contains: search, mode: 'insensitive' } },
                 { slug: { contains: search, mode: 'insensitive' } },
-            ]
+            ];
         }
 
         // isPublished
@@ -226,29 +224,35 @@ const getCategoryBySlug = async (req, res, next) => {
 
 const createCategory = async (req, res, next) => {
     try {
-        const { name } = req.body;
-
-        const slug = slugify(name, {
-            lower: true,
-            strict: true,
-            locate: 'vi',
-            trim: true
-        });
-
         const { error } = createCategorySchema.validate({ ...req.body, slug }, {
-            abortEarly: false
+            abortEarly: false,
+            stripUnknown: true
         });
-        if (error) throw new BadRequestError(error.details[0].message);
+        if (error) {
+            const errorMessages = error.details.map(detail => detail.message).join(', ');
+            return next(createError(400, errorMessages))
+        }
 
-        const existed = await prisma.category.findFirst({ where: { name, slug } });
-        if (existed) throw new ConflictRequestError("Category already exists");
+        const { name, slug } = value;
 
-        const category = await prisma.category.create({ data: { name, slug } })
+        let newCagegory;
+        await prisma.$transaction(async (tx) => {
+            const genSlug = await generateSlugAndCheckExists(name, async (slug) => {
+                return await tx.category.findFirst({
+                    where: { slug }
+                });
+            });
+            if (!genSlug) throw new ConflictRequestError('Slug already exists');
+
+            newCagegory = await tx.category.create({
+                data: { name, slug, ...value }
+            });
+        });
 
         return new Created({
             message: "Create category successfully",
             metadata: {
-                category
+                newCagegory
             }
         }).send(res);
     } catch (error) {
@@ -285,17 +289,15 @@ const updateCategory = async (req, res, next) => {
             if (!category) throw new NotFoundError('Category not found');
 
             if (value.name) {
-                const slug = slugify(value.name, {
-                    lower: true,
-                    strict: true,
-                    locate: 'vi',
-                    trim: true
-                });
-
-                const exists = await tx.category.findUnique({
-                    where: { name: value.name, slug }
-                });
-                if (exists) throw new ConflictRequestError('Category with this name already exists');
+                const genSlug = await generateSlugAndCheckExists(value.name, async (slug) => {
+                    return await tx.category.findFirst({
+                        where: {
+                            id: { not: id },
+                            slug
+                        }
+                    })
+                })
+                if (!genSlug) throw new ConflictRequestError('Slug already exists');
             }
 
             await tx.category.update({

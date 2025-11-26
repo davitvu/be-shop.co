@@ -1,7 +1,7 @@
 const { PrismaClient, AddressType, Prisma } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { createAddressSchema, updateAddressSchema } = require("../middlewares/validations/address.validation");
-const { BadRequestError, ConflictRequestError } = require('../utils/core/errorResponse');
+const { BadRequestError, ConflictRequestError, NotFoundError } = require('../utils/core/errorResponse');
 const { OK, Created } = require('../utils/core/successResponse');
 const { ADDRESS_PUBLIC_SELECT, ADDRESS_NOT_USERID_SELECT } = require('../prisma/constants/address-selects');
 

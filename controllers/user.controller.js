@@ -4,7 +4,7 @@ const createError = require('http-errors');
 const { deleteImage } = require('../utils/cloudinary.helper');
 const { updateProfileSchema, getAllUsersSchema, updateUserByAdminSchema } = require('../middlewares/validations/user.validation');
 const { filterSensitiveUserFields } = require('../utils/filterSensitiveUserFields');
-const { NotFoundError, BadRequestError, ConflictRequestError } = require('../utils/core/errorResponse');
+const { NotFoundError, BadRequestError } = require('../utils/core/errorResponse');
 const { OK } = require('../utils/core/successResponse');
 const { USER_PUBLIC_SELECT, USER_WITH_DELETED_SELECT, USER_GET_ADMIN_SELECT } = require('../prisma/constants/user-selects');
 

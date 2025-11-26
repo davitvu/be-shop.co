@@ -12,7 +12,6 @@ const createCategorySchema = Joi.object({
     }),
     description: Joi.string().trim().allow('', null).optional(),
     isPublished: Joi.boolean().optional().default(true),
-    isDeleted: Joi.boolean().optional().default(false)
 });
 
 const updateCategorySchema = Joi.object({

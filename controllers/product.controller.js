@@ -343,7 +343,7 @@ const getProductByIdAdmin = async (req, res, next) => {
                                 isActive: true
                             }
                         },
-                        Size: {
+                        size: {
                             select: {
                                 id: true,
                                 name: true,
@@ -1574,7 +1574,7 @@ const getProductBySlugClient = async (req, res, next) => {
                                 hex: true
                             }
                         },
-                        Size: {
+                        size: {
                             select: {
                                 id: true,
                                 name: true,
@@ -1673,7 +1673,6 @@ const getProductBySlugClient = async (req, res, next) => {
             metadata: formattedProduct
         }).send(res);
     } catch (error) {
-        console.log(error);
         next(error);
     }
 }
