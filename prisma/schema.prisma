@@ -51,7 +51,6 @@ model User {
   resetPasswordToken       String?
   resetPasswordExpires     DateTime?
   password_changed_at      DateTime?
-  addresses                Address[]
   isDeleted                Boolean   @default(false)
   deletedBy                String?
   deletedByUser            User?     @relation("UserDeletedBy", fields: [deletedBy], references: [id])
@@ -59,7 +58,8 @@ model User {
   deletedAt                DateTime?
   createdAt                DateTime  @default(now())
   updatedAt                DateTime  @updatedAt
-  cart                     Cart[]
+  addresses                Address[]
+  cart                     Cart?
 
   @@index([role])
   @@index([isActive])
@@ -75,13 +75,13 @@ model Address {
   firstName       String
   lastName        String
   phone           String
-  province        String
-  ward            String
-  zipCode         String
   address         String
+  ward            String
+  district        String
+  city            String
   fullAddress     String
-  addressType     AddressType @default(HOME)
   isDefault       Boolean     @default(false)
+  addressType     AddressType @default(HOME)
 
   /**
    * Đơn hàng có thể tham chiếu địa chỉ này tại thời điểm tạo (snapshot)
@@ -93,6 +93,7 @@ model Address {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([userId])
   @@index([userId, isDefault])
   @@map("addresses")
 }
@@ -236,8 +237,8 @@ model ProductVariant {
 
 model Cart {
   id        String     @id @default(uuid())
-  userId    String?
-  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?    @unique
+  user      User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
   items     CartItem[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt

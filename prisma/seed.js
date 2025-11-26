@@ -7,14 +7,19 @@ const { default: slugify } = require('slugify')
 const prisma = new PrismaClient()
 
 async function main() {
-    // Xóa dữ liệu cũ theo thứ tự an toàn (tôn trọng FK)
+    // Xóa dữ liệu cũ theo thứ tự an toàn (tôn trọng FK constraints)
     console.log('🧹 Cleaning old data...')
 
-    await prisma.color.deleteMany()
-    console.log('  ✓ Colors deleted')
+    // Xóa theo thứ tự: CartItem → Cart → ProductStyle, ProductImage → ProductVariant → Product → Category, Color, Size, Style → Address → User
+    
+    await prisma.cartItem.deleteMany()
+    console.log('  ✓ CartItems deleted')
 
-    await prisma.style.deleteMany()
-    console.log('  ✓ Styles deleted')
+    await prisma.cart.deleteMany()
+    console.log('  ✓ Carts deleted')
+
+    await prisma.productStyle.deleteMany()
+    console.log('  ✓ ProductStyles deleted')
 
     await prisma.productImage.deleteMany()
     console.log('  ✓ ProductImages deleted')
@@ -22,17 +27,20 @@ async function main() {
     await prisma.productVariant.deleteMany()
     console.log('  ✓ ProductVariants deleted')
 
-    await prisma.productStyle.deleteMany()
-    console.log('  ✓ ProductStyles deleted')
-
-    await prisma.size.deleteMany()
-    console.log('  ✓ Sizes deleted')
-
     await prisma.product.deleteMany()
     console.log('  ✓ Products deleted')
 
     await prisma.category.deleteMany()
     console.log('  ✓ Categories deleted')
+
+    await prisma.color.deleteMany()
+    console.log('  ✓ Colors deleted')
+
+    await prisma.size.deleteMany()
+    console.log('  ✓ Sizes deleted')
+
+    await prisma.style.deleteMany()
+    console.log('  ✓ Styles deleted')
 
     await prisma.address.deleteMany()
     console.log('  ✓ Addresses deleted')
@@ -84,7 +92,97 @@ async function main() {
             role: UserRole.MANAGER,
             isActive: true,
             isDeleted: false,
-            phone: "0987654321",
+            phone: "0987654322",
+            isEmailVerified: true,
+        },
+    })
+
+    const charlie = await prisma.user.create({
+        data: {
+            email: 'charlie@gmail.com',
+            password: await hashedPassword("123123"),
+            firstName: 'Charlie',
+            lastName: 'Johnson',
+            avatarUrl: 'http://localhost:5173/default.png',
+            role: UserRole.USER,
+            isActive: true,
+            isDeleted: false,
+            phone: "0987654323",
+            isEmailVerified: true,
+        },
+    })
+
+    const diana = await prisma.user.create({
+        data: {
+            email: 'diana@gmail.com',
+            password: await hashedPassword("123123"),
+            firstName: 'Diana',
+            lastName: 'Smith',
+            avatarUrl: 'http://localhost:5173/default.png',
+            role: UserRole.USER,
+            isActive: true,
+            isDeleted: false,
+            phone: "0987654324",
+            isEmailVerified: true,
+        },
+    })
+
+    const emma = await prisma.user.create({
+        data: {
+            email: 'emma@gmail.com',
+            password: await hashedPassword("123123"),
+            firstName: 'Emma',
+            lastName: 'Brown',
+            avatarUrl: 'http://localhost:5173/default.png',
+            role: UserRole.USER,
+            isActive: true,
+            isDeleted: false,
+            phone: "0987654325",
+            isEmailVerified: true,
+        },
+    })
+
+    const frank = await prisma.user.create({
+        data: {
+            email: 'frank@gmail.com',
+            password: await hashedPassword("123123"),
+            firstName: 'Frank',
+            lastName: 'Wilson',
+            avatarUrl: 'http://localhost:5173/default.png',
+            role: UserRole.USER,
+            isActive: true,
+            isDeleted: false,
+            phone: "0987654326",
+            isEmailVerified: true,
+        },
+    })
+
+    const grace = await prisma.user.create({
+        data: {
+            email: 'grace@gmail.com',
+            password: await hashedPassword("123123"),
+            firstName: 'Grace',
+            lastName: 'Miller',
+            avatarUrl: 'http://localhost:5173/default.png',
+            role: UserRole.USER,
+            isActive: true,
+            isDeleted: false,
+            phone: "0987654327",
+            isEmailVerified: true,
+        },
+    })
+
+    const henry = await prisma.user.create({
+        data: {
+            email: 'henry@gmail.com',
+            password: await hashedPassword("123123"),
+            firstName: 'Henry',
+            lastName: 'Taylor',
+            avatarUrl: 'http://localhost:5173/default.png',
+            role: UserRole.USER,
+            isActive: true,
+            isDeleted: false,
+            phone: "0987654328",
             isEmailVerified: true,
         },
     })
@@ -100,10 +198,10 @@ async function main() {
             firstName: 'Alice',
             lastName: 'Nguyen',
             phone: '0900000001',
-            province: 'Hanoi',
-            ward: 'Nghia Do 2',
-            zipCode: '100000',
             address: '123 Đống Đa',
+            ward: 'Nghia Do 2',
+            district: 'Dong Da',
+            city: 'Hanoi',
             fullAddress: "123 Đống Đa, Dong Da, Hanoi",
             addressType: AddressType.HOME,
             isDefault: true,
@@ -117,12 +215,12 @@ async function main() {
             firstName: 'Alice',
             lastName: 'Nguyen',
             phone: '0900000002',
-            province: 'Hanoi',
-            ward: 'Nghia Do',
-            zipCode: '100001',
             address: '456 Cầu Giấy',
-            fullAddress: "456 Đống Đa, Da, Hanoi",
-            addressType: AddressType.WORD,
+            ward: 'Cau Giay',
+            district: 'Cau Giay',
+            city: 'Hanoi',
+            fullAddress: "456 Cầu Giấy, Cau Giay, Hanoi",
+            addressType: AddressType.OFFICE,
             isDefault: false,
         },
     })
@@ -134,15 +232,135 @@ async function main() {
             firstName: 'System',
             lastName: 'Admin',
             phone: '0900000999',
-            province: 'HCMC',
-            ward: 'Nghia Do 1',
-            zipCode: '700000',
             address: '01 Lê Lợi',
-            fullAddress: "123 Đống Đa, Dong Da, Hanoi",
+            ward: 'Ben Thanh',
+            district: 'District 1',
+            city: 'Ho Chi Minh City',
+            fullAddress: "01 Lê Lợi, District 1, Ho Chi Minh City",
+            addressType: AddressType.OFFICE,
+            isDefault: true,
+        },
+    })
+
+    const addrBobHome = await prisma.address.create({
+        data: {
+            userId: bob.id,
+            nameReminiscent: "Home",
+            firstName: 'Bob',
+            lastName: 'Tran',
+            phone: '0900000003',
+            address: '789 Nguyễn Hữu Cảnh',
+            ward: 'Binh Thanh',
+            district: 'Binh Thanh',
+            city: 'Ho Chi Minh City',
+            fullAddress: "789 Nguyễn Hữu Cảnh, Binh Thanh, Ho Chi Minh City",
             addressType: AddressType.HOME,
             isDefault: true,
         },
     })
+
+    const addrCharlieHome = await prisma.address.create({
+        data: {
+            userId: charlie.id,
+            nameReminiscent: "Home",
+            firstName: 'Charlie',
+            lastName: 'Johnson',
+            phone: '0900000004',
+            address: '321 Trần Hưng Đạo',
+            ward: 'Thanh Khe',
+            district: 'Thanh Khe',
+            city: 'Da Nang',
+            fullAddress: "321 Trần Hưng Đạo, Thanh Khe, Da Nang",
+            addressType: AddressType.HOME,
+            isDefault: true,
+        },
+    })
+
+    const addrDianaHome = await prisma.address.create({
+        data: {
+            userId: diana.id,
+            nameReminiscent: "Home",
+            firstName: 'Diana',
+            lastName: 'Smith',
+            phone: '0900000005',
+            address: '654 Pasteur Street',
+            ward: 'Pham Ngu Lao',
+            district: 'District 1',
+            city: 'Ho Chi Minh City',
+            fullAddress: "654 Pasteur Street, District 1, Ho Chi Minh City",
+            addressType: AddressType.HOME,
+            isDefault: true,
+        },
+    })
+
+    const addrEmmaHome = await prisma.address.create({
+        data: {
+            userId: emma.id,
+            nameReminiscent: "Home",
+            firstName: 'Emma',
+            lastName: 'Brown',
+            phone: '0900000006',
+            address: '111 Vo Van Kiet',
+            ward: 'Nguyen Hue',
+            district: 'District 1',
+            city: 'Ho Chi Minh City',
+            fullAddress: "111 Vo Van Kiet, District 1, Ho Chi Minh City",
+            addressType: AddressType.HOME,
+            isDefault: true,
+        },
+    })
+
+    const addrFrankHome = await prisma.address.create({
+        data: {
+            userId: frank.id,
+            nameReminiscent: "Home",
+            firstName: 'Frank',
+            lastName: 'Wilson',
+            phone: '0900000007',
+            address: '222 Nguyen Trai',
+            ward: 'Hai Ba Trung',
+            district: 'Hai Ba Trung',
+            city: 'Hanoi',
+            fullAddress: "222 Nguyen Trai, Hai Ba Trung, Hanoi",
+            addressType: AddressType.HOME,
+            isDefault: true,
+        },
+    })
+
+    const addrGraceHome = await prisma.address.create({
+        data: {
+            userId: grace.id,
+            nameReminiscent: "Home",
+            firstName: 'Grace',
+            lastName: 'Miller',
+            phone: '0900000008',
+            address: '333 Hoang Hoa Tham',
+            ward: 'Ba Dinh',
+            district: 'Ba Dinh',
+            city: 'Hanoi',
+            fullAddress: "333 Hoang Hoa Tham, Ba Dinh, Hanoi",
+            addressType: AddressType.HOME,
+            isDefault: true,
+        },
+    })
+
+    const addrHenryHome = await prisma.address.create({
+        data: {
+            userId: henry.id,
+            nameReminiscent: "Home",
+            firstName: 'Henry',
+            lastName: 'Taylor',
+            phone: '0900000009',
+            address: '444 Tran Phu',
+            ward: 'Ngo Quyen',
+            district: 'Hai Phong',
+            city: 'Hai Phong',
+            fullAddress: "444 Tran Phu, Hai Phong",
+            addressType: AddressType.HOME,
+            isDefault: true,
+        },
+    })
+
     console.log('✅ Addresses created\n')
 
     // ===== Categories =====
@@ -182,10 +400,28 @@ async function main() {
         },
     });
 
-    console.log('✅ Seed Categories done');
+    const dressCategory = await prisma.category.create({
+        data: {
+            name: 'Dresses',
+            slug: 'dresses',
+            description: 'Váy các loại, thanh lịch',
+            isPublished: true,
+        },
+    });
+
+    const jacketCategory = await prisma.category.create({
+        data: {
+            name: 'Jackets',
+            slug: 'jackets',
+            description: 'Áo khoác, áo ngoài',
+            isPublished: true,
+        },
+    });
+
+    console.log('✅ Categories created\n');
 
     // ==== Color ====
-    console.log('🛍️  Creating colors...')
+    console.log('🎨 Creating colors...')
     const black = await prisma.color.create({
         data: {
             name: 'Black',
@@ -217,10 +453,67 @@ async function main() {
             isActive: true,
         },
     });
-    console.log('✅ Seed Colors done');
+
+    const gray = await prisma.color.create({
+        data: {
+            name: 'Gray',
+            hex: '#808080',
+            isActive: true,
+        },
+    });
+
+    const pink = await prisma.color.create({
+        data: {
+            name: 'Pink',
+            hex: '#FFC0CB',
+            isActive: true,
+        },
+    });
+
+    const green = await prisma.color.create({
+        data: {
+            name: 'Green',
+            hex: '#228B22',
+            isActive: true,
+        },
+    });
+
+    const beige = await prisma.color.create({
+        data: {
+            name: 'Beige',
+            hex: '#F5F5DC',
+            isActive: true,
+        },
+    });
+
+    const brown = await prisma.color.create({
+        data: {
+            name: 'Brown',
+            hex: '#8B4513',
+            isActive: true,
+        },
+    });
+
+    const blue = await prisma.color.create({
+        data: {
+            name: 'Blue',
+            hex: '#0000FF',
+            isActive: true,
+        },
+    });
+
+    const purple = await prisma.color.create({
+        data: {
+            name: 'Purple',
+            hex: '#800080',
+            isActive: true,
+        },
+    });
+
+    console.log('✅ Colors created\n');
 
     // ==== Sizes ====
-    console.log('🛍️  Creating sizes...')
+    console.log('📏 Creating sizes...')
     const sizeS = await prisma.size.create({
         data: {
             name: 'Small',
@@ -252,10 +545,35 @@ async function main() {
             isActive: true,
         },
     });
-    console.log('✅ Seed Sizes done');
+
+    const sizeXS = await prisma.size.create({
+        data: {
+            name: 'Extra Small',
+            value: 'xs',
+            isActive: true,
+        },
+    });
+
+    const sizeXXL = await prisma.size.create({
+        data: {
+            name: '2XL',
+            value: 'xxl',
+            isActive: true,
+        },
+    });
+
+    const sizeXXXL = await prisma.size.create({
+        data: {
+            name: '3XL',
+            value: 'xxxl',
+            isActive: true,
+        },
+    });
+
+    console.log('✅ Sizes created\n');
 
     // ==== Products + Variants + Images ====
-    console.log('🛍️  Creating products...')
+    console.log('📦 Creating products...')
 
     // Product 1: T-shirt Casual
     // --- Product 1: Basic Black T-Shirt ---
@@ -518,10 +836,365 @@ async function main() {
             sortOrder: 1,
         },
     });
+
+    // --- Product 5: Gray Casual T-Shirt ---
+    const product5 = await prisma.product.create({
+        data: {
+            name: 'Gray Casual T-Shirt',
+            slug: 'gray-casual-t-shirt',
+            description: 'Áo thun xám thoải mái, phù hợp đi học, đi chơi.',
+            price: '179000.00',
+            stock: 75,
+            isPublished: true,
+            categoryId: tShirtCategory.id,
+        },
+    });
+
+    const p5v1 = await prisma.productVariant.create({
+        data: {
+            productId: product5.id,
+            colorId: gray.id,
+            sizeId: sizeS.id,
+            sku: 'TSHIRT-GRAY-S',
+            price: '179000.00',
+            stock: 20,
+            isPublished: true,
+        },
+    });
+
+    const p5v2 = await prisma.productVariant.create({
+        data: {
+            productId: product5.id,
+            colorId: gray.id,
+            sizeId: sizeM.id,
+            sku: 'TSHIRT-GRAY-M',
+            price: '179000.00',
+            stock: 30,
+            isPublished: true,
+        },
+    });
+
+    const p5v3 = await prisma.productVariant.create({
+        data: {
+            productId: product5.id,
+            colorId: gray.id,
+            sizeId: sizeL.id,
+            sku: 'TSHIRT-GRAY-L',
+            price: '179000.00',
+            stock: 25,
+            isPublished: true,
+        },
+    });
+
+    await prisma.productImage.create({
+        data: {
+            productId: product5.id,
+            url: 'https://via.placeholder.com/600x800?text=Gray+Casual+T-Shirt',
+            alt: 'Gray casual t-shirt - front',
+            isMain: true,
+            sortOrder: 0,
+        },
+    });
+
+    // --- Product 6: Pink Summer Dress ---
+    const product6 = await prisma.product.create({
+        data: {
+            name: 'Pink Summer Dress',
+            slug: 'pink-summer-dress',
+            description: 'Váy hồng thanh lịch, phù hợp mặc dạo phố hay dự tiệc.',
+            price: '599000.00',
+            stock: 40,
+            isPublished: true,
+            categoryId: shirtsCategory.id,
+        },
+    });
+
+    const p6v1 = await prisma.productVariant.create({
+        data: {
+            productId: product6.id,
+            colorId: pink.id,
+            sizeId: sizeS.id,
+            sku: 'DRESS-PINK-S',
+            price: '599000.00',
+            stock: 10,
+            isPublished: true,
+        },
+    });
+
+    const p6v2 = await prisma.productVariant.create({
+        data: {
+            productId: product6.id,
+            colorId: pink.id,
+            sizeId: sizeM.id,
+            sku: 'DRESS-PINK-M',
+            price: '599000.00',
+            stock: 15,
+            isPublished: true,
+        },
+    });
+
+    const p6v3 = await prisma.productVariant.create({
+        data: {
+            productId: product6.id,
+            colorId: pink.id,
+            sizeId: sizeL.id,
+            sku: 'DRESS-PINK-L',
+            price: '599000.00',
+            stock: 15,
+            isPublished: true,
+        },
+    });
+
+    await prisma.productImage.create({
+        data: {
+            productId: product6.id,
+            url: 'https://via.placeholder.com/600x800?text=Pink+Summer+Dress',
+            alt: 'Pink summer dress - front',
+            isMain: true,
+            sortOrder: 0,
+        },
+    });
+
+    // --- Product 7: Blue Polo Shirt ---
+    const product7 = await prisma.product.create({
+        data: {
+            name: 'Blue Polo Shirt',
+            slug: 'blue-polo-shirt',
+            description: 'Áo polo xanh lịch lãm, phù hợp công sở và casual.',
+            price: '349000.00',
+            stock: 55,
+            isPublished: true,
+            categoryId: shirtsCategory.id,
+        },
+    });
+
+    const p7v1 = await prisma.productVariant.create({
+        data: {
+            productId: product7.id,
+            colorId: blue.id,
+            sizeId: sizeM.id,
+            sku: 'POLO-BLUE-M',
+            price: '349000.00',
+            stock: 20,
+            isPublished: true,
+        },
+    });
+
+    const p7v2 = await prisma.productVariant.create({
+        data: {
+            productId: product7.id,
+            colorId: blue.id,
+            sizeId: sizeL.id,
+            sku: 'POLO-BLUE-L',
+            price: '349000.00',
+            stock: 20,
+            isPublished: true,
+        },
+    });
+
+    const p7v3 = await prisma.productVariant.create({
+        data: {
+            productId: product7.id,
+            colorId: blue.id,
+            sizeId: sizeXL.id,
+            sku: 'POLO-BLUE-XL',
+            price: '349000.00',
+            stock: 15,
+            isPublished: true,
+        },
+    });
+
+    await prisma.productImage.create({
+        data: {
+            productId: product7.id,
+            url: 'https://via.placeholder.com/600x800?text=Blue+Polo+Shirt',
+            alt: 'Blue polo shirt - front',
+            isMain: true,
+            sortOrder: 0,
+        },
+    });
+
+    // --- Product 8: Brown Casual Jacket ---
+    const product8 = await prisma.product.create({
+        data: {
+            name: 'Brown Casual Jacket',
+            slug: 'brown-casual-jacket',
+            description: 'Áo khoác nâu, kiểu dáng thanh lịch, ấm áp.',
+            price: '799000.00',
+            stock: 35,
+            isPublished: true,
+            categoryId: jacketCategory.id,
+        },
+    });
+
+    const p8v1 = await prisma.productVariant.create({
+        data: {
+            productId: product8.id,
+            colorId: brown.id,
+            sizeId: sizeM.id,
+            sku: 'JACKET-BROWN-M',
+            price: '799000.00',
+            stock: 12,
+            isPublished: true,
+        },
+    });
+
+    const p8v2 = await prisma.productVariant.create({
+        data: {
+            productId: product8.id,
+            colorId: brown.id,
+            sizeId: sizeL.id,
+            sku: 'JACKET-BROWN-L',
+            price: '799000.00',
+            stock: 13,
+            isPublished: true,
+        },
+    });
+
+    const p8v3 = await prisma.productVariant.create({
+        data: {
+            productId: product8.id,
+            colorId: brown.id,
+            sizeId: sizeXL.id,
+            sku: 'JACKET-BROWN-XL',
+            price: '799000.00',
+            stock: 10,
+            isPublished: true,
+        },
+    });
+
+    await prisma.productImage.create({
+        data: {
+            productId: product8.id,
+            url: 'https://via.placeholder.com/600x800?text=Brown+Casual+Jacket',
+            alt: 'Brown casual jacket - front',
+            isMain: true,
+            sortOrder: 0,
+        },
+    });
+
+    // --- Product 9: Purple Evening Dress ---
+    const product9 = await prisma.product.create({
+        data: {
+            name: 'Purple Evening Dress',
+            slug: 'purple-evening-dress',
+            description: 'Váy tím dự tiệc, trang nhã và sang trọng.',
+            price: '899000.00',
+            stock: 25,
+            isPublished: true,
+            categoryId: dressCategory.id,
+        },
+    });
+
+    const p9v1 = await prisma.productVariant.create({
+        data: {
+            productId: product9.id,
+            colorId: purple.id,
+            sizeId: sizeS.id,
+            sku: 'DRESS-PURPLE-S',
+            price: '899000.00',
+            stock: 8,
+            isPublished: true,
+        },
+    });
+
+    const p9v2 = await prisma.productVariant.create({
+        data: {
+            productId: product9.id,
+            colorId: purple.id,
+            sizeId: sizeM.id,
+            sku: 'DRESS-PURPLE-M',
+            price: '899000.00',
+            stock: 10,
+            isPublished: true,
+        },
+    });
+
+    const p9v3 = await prisma.productVariant.create({
+        data: {
+            productId: product9.id,
+            colorId: purple.id,
+            sizeId: sizeL.id,
+            sku: 'DRESS-PURPLE-L',
+            price: '899000.00',
+            stock: 7,
+            isPublished: true,
+        },
+    });
+
+    await prisma.productImage.create({
+        data: {
+            productId: product9.id,
+            url: 'https://via.placeholder.com/600x800?text=Purple+Evening+Dress',
+            alt: 'Purple evening dress - front',
+            isMain: true,
+            sortOrder: 0,
+        },
+    });
+
+    // --- Product 10: Beige Chino Pants ---
+    const product10 = await prisma.product.create({
+        data: {
+            name: 'Beige Chino Pants',
+            slug: 'beige-chino-pants',
+            description: 'Quần chinos beige, phù hợp công sở lẫn casual.',
+            price: '429000.00',
+            stock: 50,
+            isPublished: true,
+            categoryId: jeansCategory.id,
+        },
+    });
+
+    const p10v1 = await prisma.productVariant.create({
+        data: {
+            productId: product10.id,
+            colorId: beige.id,
+            sizeId: sizeM.id,
+            sku: 'CHINO-BEIGE-M',
+            price: '429000.00',
+            stock: 18,
+            isPublished: true,
+        },
+    });
+
+    const p10v2 = await prisma.productVariant.create({
+        data: {
+            productId: product10.id,
+            colorId: beige.id,
+            sizeId: sizeL.id,
+            sku: 'CHINO-BEIGE-L',
+            price: '429000.00',
+            stock: 18,
+            isPublished: true,
+        },
+    });
+
+    const p10v3 = await prisma.productVariant.create({
+        data: {
+            productId: product10.id,
+            colorId: beige.id,
+            sizeId: sizeXL.id,
+            sku: 'CHINO-BEIGE-XL',
+            price: '429000.00',
+            stock: 14,
+            isPublished: true,
+        },
+    });
+
+    await prisma.productImage.create({
+        data: {
+            productId: product10.id,
+            url: 'https://via.placeholder.com/600x800?text=Beige+Chino+Pants',
+            alt: 'Beige chino pants - front',
+            isMain: true,
+            sortOrder: 0,
+        },
+    });
+
     console.log('✅ Products created\n')
 
     // ==== Styles + ProductStyles ====
-    console.log('🛍️  Creating Styles...')
+    console.log('✨ Creating Styles...')
     const casualStyle = await prisma.style.create({
         data: {
             name: 'Casual',
@@ -578,7 +1251,7 @@ async function main() {
         },
     });
 
-    console.log('🛍️  Assign style for product...')
+    console.log('🔗 Assigning styles to products...')
     await prisma.productStyle.createMany({
         data: [
             { productId: product1.id, styleId: casualStyle.id },
@@ -609,7 +1282,211 @@ async function main() {
         ],
         skipDuplicates: true,
     });
-    console.log('✅ Seed Sizes done');
+
+    await prisma.productStyle.createMany({
+        data: [
+            { productId: product5.id, styleId: casualStyle.id },
+            { productId: product5.id, styleId: gymStyle.id },
+        ],
+        skipDuplicates: true,
+    });
+
+    await prisma.productStyle.createMany({
+        data: [
+            { productId: product6.id, styleId: formalStyle.id },
+            { productId: product6.id, styleId: partyStyle.id },
+        ],
+        skipDuplicates: true,
+    });
+
+    await prisma.productStyle.createMany({
+        data: [
+            { productId: product7.id, styleId: formalStyle.id },
+            { productId: product7.id, styleId: casualStyle.id },
+        ],
+        skipDuplicates: true,
+    });
+
+    await prisma.productStyle.createMany({
+        data: [
+            { productId: product8.id, styleId: casualStyle.id },
+        ],
+        skipDuplicates: true,
+    });
+
+    await prisma.productStyle.createMany({
+        data: [
+            { productId: product9.id, styleId: partyStyle.id },
+            { productId: product9.id, styleId: formalStyle.id },
+        ],
+        skipDuplicates: true,
+    });
+
+    await prisma.productStyle.createMany({
+        data: [
+            { productId: product10.id, styleId: formalStyle.id },
+            { productId: product10.id, styleId: casualStyle.id },
+        ],
+        skipDuplicates: true,
+    });
+
+    console.log('✅ Styles assigned\n');
+
+    // ==== CART ITEMS ====
+    console.log('🛒 Creating cart items...')
+    const cartAlice = await prisma.cart.create({
+        data: {
+            userId: alice.id,
+        },
+    });
+
+    await prisma.cartItem.create({
+        data: {
+            cartId: cartAlice.id,
+            variantId: p1v1.id, // Black T-Shirt M
+            quantity: 2,
+        },
+    });
+
+    await prisma.cartItem.create({
+        data: {
+            cartId: cartAlice.id,
+            variantId: p3v2.id, // Navy Jeans L
+            quantity: 1,
+        },
+    });
+
+    const cartBob = await prisma.cart.create({
+        data: {
+            userId: bob.id,
+        },
+    });
+
+    await prisma.cartItem.create({
+        data: {
+            cartId: cartBob.id,
+            variantId: p2v1.id, // White Shirt M
+            quantity: 1,
+        },
+    });
+
+    await prisma.cartItem.create({
+        data: {
+            cartId: cartBob.id,
+            variantId: p5v2.id, // Gray T-Shirt M
+            quantity: 3,
+        },
+    });
+
+    const cartCharlie = await prisma.cart.create({
+        data: {
+            userId: charlie.id,
+        },
+    });
+
+    await prisma.cartItem.create({
+        data: {
+            cartId: cartCharlie.id,
+            variantId: p6v1.id, // Pink Dress S
+            quantity: 1,
+        },
+    });
+
+    const cartDiana = await prisma.cart.create({
+        data: {
+            userId: diana.id,
+        },
+    });
+
+    await prisma.cartItem.create({
+        data: {
+            cartId: cartDiana.id,
+            variantId: p4v1.id, // Red Shorts M
+            quantity: 2,
+        },
+    });
+
+    const cartEmma = await prisma.cart.create({
+        data: {
+            userId: emma.id,
+        },
+    });
+
+    await prisma.cartItem.create({
+        data: {
+            cartId: cartEmma.id,
+            variantId: p7v2.id, // Blue Polo Shirt L
+            quantity: 1,
+        },
+    });
+
+    await prisma.cartItem.create({
+        data: {
+            cartId: cartEmma.id,
+            variantId: p10v1.id, // Beige Chino M
+            quantity: 1,
+        },
+    });
+
+    const cartFrank = await prisma.cart.create({
+        data: {
+            userId: frank.id,
+        },
+    });
+
+    await prisma.cartItem.create({
+        data: {
+            cartId: cartFrank.id,
+            variantId: p8v2.id, // Brown Jacket L
+            quantity: 1,
+        },
+    });
+
+    const cartGrace = await prisma.cart.create({
+        data: {
+            userId: grace.id,
+        },
+    });
+
+    await prisma.cartItem.create({
+        data: {
+            cartId: cartGrace.id,
+            variantId: p9v2.id, // Purple Evening Dress M
+            quantity: 1,
+        },
+    });
+
+    await prisma.cartItem.create({
+        data: {
+            cartId: cartGrace.id,
+            variantId: p5v1.id, // Gray T-Shirt S
+            quantity: 2,
+        },
+    });
+
+    const cartHenry = await prisma.cart.create({
+        data: {
+            userId: henry.id,
+        },
+    });
+
+    await prisma.cartItem.create({
+        data: {
+            cartId: cartHenry.id,
+            variantId: p2v2.id, // White Shirt L
+            quantity: 1,
+        },
+    });
+
+    await prisma.cartItem.create({
+        data: {
+            cartId: cartHenry.id,
+            variantId: p10v2.id, // Beige Chino L
+            quantity: 1,
+        },
+    });
+
+    console.log('✅ Cart items created\n')
 
     console.log('🎉 Seed completed successfully!\n')
     console.log('\n✨ Database is ready to use!')
