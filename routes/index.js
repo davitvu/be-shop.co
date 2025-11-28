@@ -10,6 +10,7 @@ const sizeRoutes = require('./size.route');
 const styleRoutes = require('./style.route');
 const cartRoutes = require('./cart.route');
 const orderRoutes = require('./order.route');
+const reviewRoutes = require('./review.route');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
@@ -22,6 +23,7 @@ router.use('/sizes', sizeRoutes);
 router.use('/styles', styleRoutes);
 router.use('/cart', cartRoutes);
 router.use('/orders', orderRoutes);
+router.use('/reviews', reviewRoutes);
 
 // health & check
 router.get("/", (req, res) => {

@@ -266,6 +266,7 @@ const getAllOrders = async (req, res, next) => {
                     items: {
                         select: {
                             id: true,
+                            productId: true,
                             productName: true,
                             productSlug: true,
                             variantSku: true,
@@ -302,6 +303,7 @@ const getAllOrders = async (req, res, next) => {
             },
             items: order.items.map(item => ({
                 id: item.id,
+                productId: item.productId,
                 productName: item.productName,
                 productSlug: item.productSlug,
                 variantSku: item.variantSku,
