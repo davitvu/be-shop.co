@@ -123,7 +123,6 @@ const createVariant = async (req, res, next) => {
             metadata: formattedVariant
         }).send(res);
     } catch (error) {
-        console.log(error);
         next(error);
     }
 };
@@ -258,7 +257,6 @@ const getAllVariants = async (req, res, next) => {
             }
         }).send(res);
     } catch (error) {
-        console.log(error);
         next(error);
     }
 };
@@ -540,7 +538,6 @@ const updateVariant = async (req, res, next) => {
         }).send(res);
 
     } catch (error) {
-        console.log(error);
         next(error);
     }
 };

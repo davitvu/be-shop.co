@@ -84,7 +84,6 @@ const getAllCategoriesClient = async (req, res, next) => {
             }
         }).send(res);
     } catch (error) {
-        console.log(error);
         next(error);
     }
 };
@@ -272,7 +271,6 @@ const updateCategory = async (req, res, next) => {
             abortEarly: false,
             stripUnknown: true
         });
-        console.log(value);
 
         if (error) {
             const errorMessages = error.details.map(detail => detail.message).join(', ');

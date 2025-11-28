@@ -116,7 +116,6 @@ const createAddress = async (req, res, next) => {
             metadata: newAddress
         }).send(res);
     } catch (error) {
-        console.log(error);
         // Nếu 2 request cùng lúc đều set default, DB sẽ ném unique violation
         if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
             throw new ConflictRequestError('Default address already exists');
@@ -182,7 +181,6 @@ const updateAddress = async (req, res, next) => {
                         orderBy: { createdAt: 'desc' },
                         select: { id: true }
                     });
-                    console.log(remainingAddress);
 
                     if (remainingAddress) {
                         await tx.address.update({

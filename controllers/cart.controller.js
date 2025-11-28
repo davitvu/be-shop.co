@@ -148,7 +148,6 @@ const addToCart = async (req, res, next) => {
             metadata: formattedItem
         }).send(res);
     } catch (error) {
-        console.log(error);
         next(error);
     }
 };
@@ -456,7 +455,6 @@ const updateCartItem = async (req, res, next) => {
             metadata: formattedItem
         }).send(res);
     } catch (error) {
-        console.log(error);
         next(error);
     }
 };

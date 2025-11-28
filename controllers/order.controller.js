@@ -211,7 +211,6 @@ const createOrder = async (req, res, next) => {
             metadata: formattedOrder
         }).send(res);
     } catch (error) {
-        console.log(error);
         next(error);
     }
 };

@@ -216,7 +216,6 @@ const updateSize = async (req, res, next) => {
             metadata: formattedSize
         }).send(res);
     } catch (error) {
-        console.log(error);
         next(error);
     }
 };
