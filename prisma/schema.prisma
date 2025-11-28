@@ -60,6 +60,14 @@ enum AddressType {
   @@map("address_type")
 }
 
+enum CouponType {
+  PERCENT
+  AMOUNT
+  FREE_SHIPPING
+
+  @@map("coupon_type")
+}
+
 // --- Models ---
 
 model User {
@@ -332,6 +340,10 @@ model Order {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   reviews   Review[]
+  coupon    Coupon?  @relation(fields: [couponId], references: [id])
+  couponId  String?
+  counponCode String? // snapshot
+  couponDiscount Int @default(0)
 
   @@index([userId])
   @@index([orderNumber])
@@ -393,4 +405,29 @@ model Review {
   @@index([orderId])
   @@index([rating])
   @@map("reviews")
+}
+
+model Coupon {
+  id             String     @id @default(uuid())
+  code           String     @unique
+  name           String
+  description    String?    @db.Text
+  type           CouponType
+  value          Int    
+  minOrderAmount Int?   
+  maxDiscount    Int?   
+  usageLimit     Int?
+  usageCount     Int        @default(0)
+  perUserLimit   Int        @default(1)     
+  startDate      DateTime
+  endDate        DateTime
+  isActive       Boolean    @default(true)
+  orders         Order[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([code])
+  @@index([isActive])
+  @@index([startDate, endDate])
+  @@map("coupons")
 }

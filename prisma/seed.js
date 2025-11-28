@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-const { PrismaClient, UserRole, OrderStatus, AddressType, PaymentMethod, PaymentStatus } = require('@prisma/client')
+const { PrismaClient, UserRole, OrderStatus, AddressType, PaymentMethod, PaymentStatus, CouponType } = require('@prisma/client')
 const { hashedPassword } = require('../controllers/auth.controller')
 const { default: slugify } = require('slugify')
 
@@ -10,13 +10,19 @@ async function main() {
     // Xóa dữ liệu cũ theo thứ tự an toàn (tôn trọng FK constraints)
     console.log('🧹 Cleaning old data...')
 
-    // Xóa theo thứ tự: OrderItem → Order → CartItem → Cart → ProductStyle, ProductImage → ProductVariant → Product → Category, Color, Size, Style → Address → User
+    // Xóa theo thứ tự: Review → OrderItem → Order → Coupon → CartItem → Cart → ProductStyle, ProductImage → ProductVariant → Product → Category, Color, Size, Style → Address → User
     
+    await prisma.review.deleteMany()
+    console.log('  ✓ Reviews deleted')
+
     await prisma.orderItem.deleteMany()
     console.log('  ✓ OrderItems deleted')
 
     await prisma.order.deleteMany()
     console.log('  ✓ Orders deleted')
+
+    await prisma.coupon.deleteMany()
+    console.log('  ✓ Coupons deleted')
 
     await prisma.cartItem.deleteMany()
     console.log('  ✓ CartItems deleted')
@@ -1804,6 +1810,198 @@ async function main() {
     });
 
     console.log('📋 Orders created\n')
+
+    // ==== COUPONS ====
+    console.log('🎟️  Creating coupons...')
+    const coupon1 = await prisma.coupon.create({
+        data: {
+            code: 'WELCOME10',
+            name: 'Welcome Discount',
+            description: '10% off for new customers',
+            type: 'PERCENT',
+            value: 10,
+            minOrderAmount: 100000,
+            maxDiscount: 100000,
+            usageLimit: 100,
+            perUserLimit: 1,
+            startDate: new Date('2025-01-01'),
+            endDate: new Date('2025-12-31'),
+            isActive: true,
+        },
+    });
+
+    const coupon2 = await prisma.coupon.create({
+        data: {
+            code: 'SAVE50K',
+            name: 'Save 50K',
+            description: 'Get 50,000 VND discount',
+            type: 'AMOUNT',
+            value: 50000,
+            minOrderAmount: 300000,
+            usageLimit: 50,
+            perUserLimit: 2,
+            startDate: new Date('2025-01-15'),
+            endDate: new Date('2025-03-15'),
+            isActive: true,
+        },
+    });
+
+    const coupon3 = await prisma.coupon.create({
+        data: {
+            code: 'FREESHIP',
+            name: 'Free Shipping',
+            description: 'Free shipping on orders over 500k',
+            type: 'FREE_SHIPPING',
+            value: 0,
+            minOrderAmount: 500000,
+            usageLimit: 200,
+            perUserLimit: null,
+            startDate: new Date('2025-01-01'),
+            endDate: new Date('2025-12-31'),
+            isActive: true,
+        },
+    });
+
+    const coupon4 = await prisma.coupon.create({
+        data: {
+            code: 'SUMMER20',
+            name: 'Summer Sale',
+            description: '20% off on summer collection',
+            type: 'PERCENT',
+            value: 20,
+            minOrderAmount: 200000,
+            maxDiscount: 200000,
+            usageLimit: 150,
+            perUserLimit: 3,
+            startDate: new Date('2025-06-01'),
+            endDate: new Date('2025-08-31'),
+            isActive: false,
+        },
+    });
+
+    console.log('✅ Coupons created\n')
+
+    // ==== REVIEWS ====
+    console.log('⭐ Creating reviews...')
+    
+    // Reviews for order1 (alice)
+    await prisma.review.create({
+        data: {
+            userId: alice.id,
+            productId: product1.id,
+            orderId: order1.id,
+            rating: 5,
+            comment: 'Áo thun chất lượng tốt, vừa vặn và thoải mái. Giao hàng nhanh, đóng gói cẩn thận!',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: alice.id,
+            productId: product3.id,
+            orderId: order1.id,
+            rating: 4,
+            comment: 'Quần jeans đẹp, co giãn tốt. Chỉ hơi sáng màu so với hình.',
+        },
+    });
+
+    // Reviews for order2 (bob)
+    await prisma.review.create({
+        data: {
+            userId: bob.id,
+            productId: product2.id,
+            orderId: order2.id,
+            rating: 5,
+            comment: 'Áo sơ mi rất đẹp, form chuẩn, chất liệu tốt. Rất hài lòng!',
+        },
+    });
+
+    // Reviews for order3 (charlie)
+    await prisma.review.create({
+        data: {
+            userId: charlie.id,
+            productId: product4.id,
+            orderId: order3.id,
+            rating: 4,
+            comment: 'Quần short thoáng mát, thích hợp cho hoạt động thể thao.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: charlie.id,
+            productId: product5.id,
+            orderId: order3.id,
+            rating: 5,
+            comment: 'Áo thun xám tuyệt vời! Chất cotton mềm mại, không xù lông.',
+        },
+    });
+
+    // Reviews for order4 (diana)
+    await prisma.review.create({
+        data: {
+            userId: diana.id,
+            productId: product6.id,
+            orderId: order4.id,
+            rating: 5,
+            comment: 'Váy đẹp lắm! Tôi rất hài lòng với chất lượng và màu sắc. Sẽ mua lại.',
+        },
+    });
+
+    // Reviews for order5 (emma)
+    await prisma.review.create({
+        data: {
+            userId: emma.id,
+            productId: product7.id,
+            orderId: order5.id,
+            rating: 4,
+            comment: 'Áo polo đẹp, chất tốt. Hơi chật một chút so với dự kiến.',
+        },
+    });
+
+    // Reviews for order6 (frank)
+    await prisma.review.create({
+        data: {
+            userId: frank.id,
+            productId: product8.id,
+            orderId: order6.id,
+            rating: 5,
+            comment: 'Áo khoác chất lượng cao, ấm áp và bền. Giá hợp lý.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: frank.id,
+            productId: product9.id,
+            orderId: order6.id,
+            rating: 4,
+            comment: 'Váy tím đẹp, kiểu dáng thanh lịch. Chỉ hơi nóng khi mặc lâu.',
+        },
+    });
+
+    // Additional reviews from other users
+    await prisma.review.create({
+        data: {
+            userId: grace.id,
+            productId: product1.id,
+            orderId: order1.id,
+            rating: 4,
+            comment: 'Áo thun cơ bản nhưng chất lượng khá tốt. Giá cảm thấy hợp lý.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: henry.id,
+            productId: product2.id,
+            orderId: order2.id,
+            rating: 5,
+            comment: 'Áo sơ mi trắng đẹp, rất chuyên nghiệp. Mình dùng cho công sở.',
+        },
+    });
+
+    console.log('✅ Reviews created\n')
 
     console.log('🎉 Seed completed successfully!\n')
     console.log('\n✨ Database is ready to use!')
