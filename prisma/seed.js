@@ -630,7 +630,7 @@ async function main() {
     const p1ImgCommon = await prisma.productImage.create({
         data: {
             productId: product1.id,
-            url: 'https://via.placeholder.com/600x800?text=Basic+Black+T-Shirt',
+            url: 'https://cdn.shopify.com/s/files/1/0281/0049/3396/products/black-t-shirt-tapered_480x480.jpg?v=1702642434',
             alt: 'Basic black t-shirt - front',
             isMain: true,
             sortOrder: 0,
@@ -642,7 +642,7 @@ async function main() {
         data: {
             productId: product1.id,
             variantId: p1v1.id,
-            url: 'https://via.placeholder.com/600x800?text=Basic+Black+T-Shirt+M',
+            url: 'https://www.trueclassictees.com/cdn/shop/articles/black-v-neck.jpg?v=1671470296&width=600',
             alt: 'Basic black t-shirt size M',
             isMain: false,
             sortOrder: 1,
@@ -654,7 +654,7 @@ async function main() {
         data: {
             productId: product1.id,
             variantId: p1v2.id,
-            url: 'https://via.placeholder.com/600x800?text=Basic+Black+T-Shirt+L',
+            url: 'https://i.pinimg.com/736x/c3/80/27/c38027502724f7f4feea91922ab765fb.jpg',
             alt: 'Basic black t-shirt size L',
             isMain: false,
             sortOrder: 2,
@@ -665,7 +665,7 @@ async function main() {
     await prisma.productImage.create({
         data: {
             productId: product1.id,
-            url: 'https://via.placeholder.com/600x800?text=Basic+Black+T-Shirt+Back',
+            url: 'https://chop-co.netlify.app/assets/Svg1-DzpZ5m2Z.svg',
             alt: 'Basic black t-shirt - back',
             isMain: false,
             sortOrder: 3,
@@ -712,7 +712,7 @@ async function main() {
     await prisma.productImage.create({
         data: {
             productId: product2.id,
-            url: 'https://via.placeholder.com/600x800?text=White+Formal+Shirt',
+            url: 'https://www.musclefitbasics.com/cdn/shop/files/main-white-heavyweight-muscle-fit-300gsm-tshirt-full-body_1_4d77ebbe-87f9-4981-89ef-c5c4c7e6ff97.jpg?v=1697332495',
             alt: 'White formal shirt - front',
             isMain: true,
             sortOrder: 0,
@@ -724,7 +724,7 @@ async function main() {
         data: {
             productId: product2.id,
             variantId: p2v2.id,
-            url: 'https://via.placeholder.com/600x800?text=White+Formal+Shirt+L',
+            url: 'https://image.menswearhouse.com/is/image/TMW/TMW_5G2K_01_AWEARNESS_KENNETH_COLE_DRESS_SHIRTS_WHITE_SOLID_MAIN?imPolicy=pgp-sm',
             alt: 'White formal shirt size L',
             isMain: false,
             sortOrder: 1,
@@ -771,7 +771,7 @@ async function main() {
     await prisma.productImage.create({
         data: {
             productId: product3.id,
-            url: 'https://via.placeholder.com/600x800?text=Navy+Slim+Jeans',
+            url: 'https://www.batchmens.com/cdn/shop/files/EssentialNavyOxsitting.jpg?v=1719509796',
             alt: 'Navy slim jeans - front',
             isMain: true,
             sortOrder: 0,
@@ -783,7 +783,7 @@ async function main() {
         data: {
             productId: product3.id,
             variantId: p3v2.id,
-            url: 'https://via.placeholder.com/600x800?text=Navy+Slim+Jeans+L',
+            url: 'https://chop-co.netlify.app/assets/Svg2-B2LMqJpm.svg',
             alt: 'Navy slim jeans size L',
             isMain: false,
             sortOrder: 1,
@@ -830,7 +830,7 @@ async function main() {
     await prisma.productImage.create({
         data: {
             productId: product4.id,
-            url: 'https://via.placeholder.com/600x800?text=Red+Sport+Shorts',
+            url: 'https://www.politix.com.au/dw/image/v2/ABBA_PRD/on/demandware.static/-/Sites-politix-master-catalog/default/dw713e3267/images/hires/Summer23/D2%20Batch%202/DD20S-TAN-1-min.jpg?sh=3000&sm=cut&sw=2500',
             alt: 'Red sport shorts - front',
             isMain: true,
             sortOrder: 0,
@@ -842,7 +842,7 @@ async function main() {
         data: {
             productId: product4.id,
             variantId: p4v2.id,
-            url: 'https://via.placeholder.com/600x800?text=Red+Sport+Shorts+L',
+            url: 'https://media.gq.com/photos/67feb516bb9a3b173ff47116/3%3A2/w_6720%2Ch_4480%2Cc_limit/2502-GQR-February-WorkoutShorts_B7A0531%201.jpg',
             alt: 'Red sport shorts size L',
             isMain: false,
             sortOrder: 1,
@@ -901,7 +901,7 @@ async function main() {
     await prisma.productImage.create({
         data: {
             productId: product5.id,
-            url: 'https://via.placeholder.com/600x800?text=Gray+Casual+T-Shirt',
+            url: 'https://i5.walmartimages.com/seo/Handshe-Men-s-Striped-Print-Long-Sleeve-Crew-Neck-T-Shirts-Comfortable-Casual-Wear-Breathable-Fabric-for-Daily-Casual-Outdoor-Activities-Plus-Size_c7b730c1-0e5a-4329-9fa8-ed51f848f17a.c3ee1e75310b3bdbec44ce7a6222c46d.jpeg',
             alt: 'Gray casual t-shirt - front',
             isMain: true,
             sortOrder: 0,
@@ -960,7 +960,7 @@ async function main() {
     await prisma.productImage.create({
         data: {
             productId: product6.id,
-            url: 'https://via.placeholder.com/600x800?text=Pink+Summer+Dress',
+            url: 'https://img.kwcdn.com/product/fancy/1bb00895-906e-434a-b5b8-c5aa61acd7a1.jpg?imageMogr2%2Fauto-orient%7CimageView2%2F2%2Fw%2F800%2Fq%2F70%2Fformat%2Fwebp=',
             alt: 'Pink summer dress - front',
             isMain: true,
             sortOrder: 0,
@@ -1019,7 +1019,7 @@ async function main() {
     await prisma.productImage.create({
         data: {
             productId: product7.id,
-            url: 'https://via.placeholder.com/600x800?text=Blue+Polo+Shirt',
+            url: 'https://i5.walmartimages.com/seo/Handshe-Men-s-Long-Sleeve-T-Shirt-Striped-Print-Casual-Crew-Neck-Pullover-for-Casual-Everyday-Wear-Outdoor-Street-Style-Plus-Size_72656c6e-083a-4104-8c90-bfcd45381aa9.c48f5bd434efc961019468bc84b83a67.jpeg',
             alt: 'Blue polo shirt - front',
             isMain: true,
             sortOrder: 0,
@@ -1078,7 +1078,7 @@ async function main() {
     await prisma.productImage.create({
         data: {
             productId: product8.id,
-            url: 'https://via.placeholder.com/600x800?text=Brown+Casual+Jacket',
+            url: 'https://chop-co.netlify.app/assets/Svg4-CJLzc85S.svg',
             alt: 'Brown casual jacket - front',
             isMain: true,
             sortOrder: 0,
@@ -1137,7 +1137,7 @@ async function main() {
     await prisma.productImage.create({
         data: {
             productId: product9.id,
-            url: 'https://via.placeholder.com/600x800?text=Purple+Evening+Dress',
+            url: 'https://chop-co.netlify.app/assets/Svg6-DjL6382h.svg',
             alt: 'Purple evening dress - front',
             isMain: true,
             sortOrder: 0,
@@ -1196,8 +1196,410 @@ async function main() {
     await prisma.productImage.create({
         data: {
             productId: product10.id,
-            url: 'https://via.placeholder.com/600x800?text=Beige+Chino+Pants',
+            url: 'https://m.media-amazon.com/images/I/718e7gw3YnL._AC_UY1000_.jpg',
             alt: 'Beige chino pants - front',
+            isMain: true,
+            sortOrder: 0,
+        },
+    });
+
+    // --- Product 11: Green Hoodie ---
+    const product11 = await prisma.product.create({
+        data: {
+            name: 'Green Hoodie',
+            slug: 'green-hoodie',
+            description: 'Áo hoodie xanh lá, chất liệu ấm áp, thoải mái.',
+            price: 349000,
+            stock: 45,
+            isPublished: true,
+            categoryId: shirtsCategory.id,
+        },
+    });
+
+    const p11v1 = await prisma.productVariant.create({
+        data: {
+            productId: product11.id,
+            colorId: green.id,
+            sizeId: sizeS.id,
+            sku: 'HOODIE-GREEN-S',
+            price: 349000,
+            stock: 15,
+            isPublished: true,
+        },
+    });
+
+    const p11v2 = await prisma.productVariant.create({
+        data: {
+            productId: product11.id,
+            colorId: green.id,
+            sizeId: sizeM.id,
+            sku: 'HOODIE-GREEN-M',
+            price: 349000,
+            stock: 15,
+            isPublished: true,
+        },
+    });
+
+    const p11v3 = await prisma.productVariant.create({
+        data: {
+            productId: product11.id,
+            colorId: green.id,
+            sizeId: sizeL.id,
+            sku: 'HOODIE-GREEN-L',
+            price: 349000,
+            stock: 15,
+            isPublished: true,
+        },
+    });
+
+    await prisma.productImage.create({
+        data: {
+            productId: product11.id,
+            url: 'https://img01.ztat.net/article/spp-media-p1/07be968115914bd792ba507fd9d1acdc/77472d2d897745a9addd2faca54caff0.jpg?imwidth=762',
+            alt: 'Green hoodie - front',
+            isMain: true,
+            sortOrder: 0,
+        },
+    });
+
+    // --- Product 12: Black Hoodie ---
+    const product12 = await prisma.product.create({
+        data: {
+            name: 'Black Hoodie',
+            slug: 'black-hoodie',
+            description: 'Áo hoodie đen cơ bản, mặc được quanh năm.',
+            price: 349000,
+            stock: 50,
+            isPublished: true,
+            categoryId: shirtsCategory.id,
+        },
+    });
+
+    const p12v1 = await prisma.productVariant.create({
+        data: {
+            productId: product12.id,
+            colorId: black.id,
+            sizeId: sizeXS.id,
+            sku: 'HOODIE-BLACK-XS',
+            price: 349000,
+            stock: 10,
+            isPublished: true,
+        },
+    });
+
+    const p12v2 = await prisma.productVariant.create({
+        data: {
+            productId: product12.id,
+            colorId: black.id,
+            sizeId: sizeM.id,
+            sku: 'HOODIE-BLACK-M',
+            price: 349000,
+            stock: 15,
+            isPublished: true,
+        },
+    });
+
+    const p12v3 = await prisma.productVariant.create({
+        data: {
+            productId: product12.id,
+            colorId: black.id,
+            sizeId: sizeXL.id,
+            sku: 'HOODIE-BLACK-XL',
+            price: 349000,
+            stock: 15,
+            isPublished: true,
+        },
+    });
+
+    const p12v4 = await prisma.productVariant.create({
+        data: {
+            productId: product12.id,
+            colorId: black.id,
+            sizeId: sizeL.id,
+            sku: 'HOODIE-BLACK-L',
+            price: 349000,
+            stock: 10,
+            isPublished: true,
+        },
+    });
+
+    await prisma.productImage.create({
+        data: {
+            productId: product12.id,
+            url: 'https://i.etsystatic.com/22015761/r/il/762177/2231781725/il_570xN.2231781725_pjzr.jpg',
+            alt: 'Black hoodie - front',
+            isMain: true,
+            sortOrder: 0,
+        },
+    });
+
+    // --- Product 13: Red Hoodie ---
+    const product13 = await prisma.product.create({
+        data: {
+            name: 'Red Hoodie',
+            slug: 'red-hoodie',
+            description: 'Áo hoodie đỏ nổi bật, phù hợp cho mùa lạnh.',
+            price: 349000,
+            stock: 40,
+            isPublished: true,
+            categoryId: shirtsCategory.id,
+        },
+    });
+
+    const p13v1 = await prisma.productVariant.create({
+        data: {
+            productId: product13.id,
+            colorId: red.id,
+            sizeId: sizeS.id,
+            sku: 'HOODIE-RED-S',
+            price: 349000,
+            stock: 12,
+            isPublished: true,
+        },
+    });
+
+    const p13v2 = await prisma.productVariant.create({
+        data: {
+            productId: product13.id,
+            colorId: red.id,
+            sizeId: sizeL.id,
+            sku: 'HOODIE-RED-L',
+            price: 349000,
+            stock: 14,
+            isPublished: true,
+        },
+    });
+
+    const p13v3 = await prisma.productVariant.create({
+        data: {
+            productId: product13.id,
+            colorId: red.id,
+            sizeId: sizeXL.id,
+            sku: 'HOODIE-RED-XL',
+            price: 349000,
+            stock: 14,
+            isPublished: true,
+        },
+    });
+
+    await prisma.productImage.create({
+        data: {
+            productId: product13.id,
+            url: 'https://image.made-in-china.com/202f0j00PAQiVkrhEdzy/Sample-Custom-Design-500GSM-Heavy-Oversized-Hoodie-Hip-Hop-Blank-Men-Cotton-100-Hoodie-Heavy-Thick-Heavyweight-Hoodie.webp',
+            alt: 'Red hoodie - front',
+            isMain: true,
+            sortOrder: 0,
+        },
+    });
+
+    // --- Product 14: Blue Jeans ---
+    const product14 = await prisma.product.create({
+        data: {
+            name: 'Blue Denim Jeans',
+            slug: 'blue-denim-jeans',
+            description: 'Quần jeans denim xanh, co giãn, bền bỉ.',
+            price: 499000,
+            stock: 55,
+            isPublished: true,
+            categoryId: jeansCategory.id,
+        },
+    });
+
+    const p14v1 = await prisma.productVariant.create({
+        data: {
+            productId: product14.id,
+            colorId: blue.id,
+            sizeId: sizeS.id,
+            sku: 'JEANS-BLUE-S',
+            price: 499000,
+            stock: 12,
+            isPublished: true,
+        },
+    });
+
+    const p14v2 = await prisma.productVariant.create({
+        data: {
+            productId: product14.id,
+            colorId: blue.id,
+            sizeId: sizeM.id,
+            sku: 'JEANS-BLUE-M',
+            price: 499000,
+            stock: 18,
+            isPublished: true,
+        },
+    });
+
+    const p14v3 = await prisma.productVariant.create({
+        data: {
+            productId: product14.id,
+            colorId: blue.id,
+            sizeId: sizeL.id,
+            sku: 'JEANS-BLUE-L',
+            price: 499000,
+            stock: 15,
+            isPublished: true,
+        },
+    });
+
+    const p14v4 = await prisma.productVariant.create({
+        data: {
+            productId: product14.id,
+            colorId: blue.id,
+            sizeId: sizeXL.id,
+            sku: 'JEANS-BLUE-XL',
+            price: 499000,
+            stock: 10,
+            isPublished: true,
+        },
+    });
+
+    await prisma.productImage.create({
+        data: {
+            productId: product14.id,
+            url: 'https://i.pinimg.com/736x/9d/08/b5/9d08b55a7f85fba2587338cbec18abd5.jpg',
+            alt: 'Blue denim jeans - front',
+            isMain: true,
+            sortOrder: 0,
+        },
+    });
+
+    // --- Product 15: Purple T-Shirt ---
+    const product15 = await prisma.product.create({
+        data: {
+            name: 'Purple T-Shirt',
+            slug: 'purple-t-shirt',
+            description: 'Áo thun tím sẫm, chất cotton mềm mại.',
+            price: 199000,
+            stock: 70,
+            isPublished: true,
+            categoryId: tShirtCategory.id,
+        },
+    });
+
+    const p15v1 = await prisma.productVariant.create({
+        data: {
+            productId: product15.id,
+            colorId: purple.id,
+            sizeId: sizeXS.id,
+            sku: 'TSHIRT-PURPLE-XS',
+            price: 199000,
+            stock: 15,
+            isPublished: true,
+        },
+    });
+
+    const p15v2 = await prisma.productVariant.create({
+        data: {
+            productId: product15.id,
+            colorId: purple.id,
+            sizeId: sizeM.id,
+            sku: 'TSHIRT-PURPLE-M',
+            price: 199000,
+            stock: 20,
+            isPublished: true,
+        },
+    });
+
+    const p15v3 = await prisma.productVariant.create({
+        data: {
+            productId: product15.id,
+            colorId: purple.id,
+            sizeId: sizeL.id,
+            sku: 'TSHIRT-PURPLE-L',
+            price: 199000,
+            stock: 20,
+            isPublished: true,
+        },
+    });
+
+    const p15v4 = await prisma.productVariant.create({
+        data: {
+            productId: product15.id,
+            colorId: purple.id,
+            sizeId: sizeXL.id,
+            sku: 'TSHIRT-PURPLE-XL',
+            price: 199000,
+            stock: 15,
+            isPublished: true,
+        },
+    });
+
+    await prisma.productImage.create({
+        data: {
+            productId: product15.id,
+            url: 'https://chop-co.netlify.app/assets/Svg9-B5NFyH7l.svg',
+            alt: 'Purple t-shirt - front',
+            isMain: true,
+            sortOrder: 0,
+        },
+    });
+
+    // --- Product 16: Navy Shorts ---
+    const product16 = await prisma.product.create({
+        data: {
+            name: 'Navy Sport Shorts',
+            slug: 'navy-sport-shorts',
+            description: 'Quần short xanh navy, nhanh khô, thoáng mát.',
+            price: 259000,
+            stock: 60,
+            isPublished: true,
+            categoryId: shortsCategory.id,
+        },
+    });
+
+    const p16v1 = await prisma.productVariant.create({
+        data: {
+            productId: product16.id,
+            colorId: navy.id,
+            sizeId: sizeS.id,
+            sku: 'SHORT-NAVY-S',
+            price: 259000,
+            stock: 15,
+            isPublished: true,
+        },
+    });
+
+    const p16v2 = await prisma.productVariant.create({
+        data: {
+            productId: product16.id,
+            colorId: navy.id,
+            sizeId: sizeM.id,
+            sku: 'SHORT-NAVY-M',
+            price: 259000,
+            stock: 20,
+            isPublished: true,
+        },
+    });
+
+    const p16v3 = await prisma.productVariant.create({
+        data: {
+            productId: product16.id,
+            colorId: navy.id,
+            sizeId: sizeL.id,
+            sku: 'SHORT-NAVY-L',
+            price: 259000,
+            stock: 15,
+            isPublished: true,
+        },
+    });
+
+    const p16v4 = await prisma.productVariant.create({
+        data: {
+            productId: product16.id,
+            colorId: navy.id,
+            sizeId: sizeXL.id,
+            sku: 'SHORT-NAVY-XL',
+            price: 259000,
+            stock: 10,
+            isPublished: true,
+        },
+    });
+
+    await prisma.productImage.create({
+        data: {
+            productId: product16.id,
+            url: 'https://www.grindstore.com/cdn/shop/files/21514-1-550x550.jpg?v=1691406043',
+            alt: 'Navy sport shorts - front',
             isMain: true,
             sortOrder: 0,
         },
@@ -1855,7 +2257,7 @@ async function main() {
             value: 0,
             minOrderAmount: 500000,
             usageLimit: 200,
-            perUserLimit: null,
+            perUserLimit: 1,
             startDate: new Date('2025-01-01'),
             endDate: new Date('2025-12-31'),
             isActive: true,

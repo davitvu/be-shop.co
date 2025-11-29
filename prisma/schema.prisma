@@ -73,13 +73,14 @@ enum CouponType {
 model User {
   id                       String    @id @default(uuid())
   email                    String    @unique
-  password                 String
+  password                 String?
   firstName                String
   lastName                 String
   phone                    String?
   avatarUrl                String
   role                     UserRole  @default(USER)
   isActive                 Boolean   @default(true)
+  googleId                 String?   @unique
   isEmailVerified          Boolean   @default(false)
   emailVerificationToken   String?
   emailVerificationExpires DateTime?
@@ -99,6 +100,7 @@ model User {
   reviews                  Review[]
 
   @@index([role])
+  @@index([googleId])
   @@index([isActive])
   @@index([isDeleted])
   @@map("users")
@@ -337,13 +339,13 @@ model Order {
   // Relations
   items OrderItem[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  reviews   Review[]
-  coupon    Coupon?  @relation(fields: [couponId], references: [id])
-  couponId  String?
-  counponCode String? // snapshot
-  couponDiscount Int @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  reviews        Review[]
+  coupon         Coupon?  @relation(fields: [couponId], references: [id])
+  couponId       String?
+  counponCode    String? // snapshot
+  couponDiscount Int      @default(0)
 
   @@index([userId])
   @@index([orderNumber])
@@ -413,12 +415,12 @@ model Coupon {
   name           String
   description    String?    @db.Text
   type           CouponType
-  value          Int    
-  minOrderAmount Int?   
-  maxDiscount    Int?   
+  value          Int
+  minOrderAmount Int?
+  maxDiscount    Int?
   usageLimit     Int?
   usageCount     Int        @default(0)
-  perUserLimit   Int        @default(1)     
+  perUserLimit   Int        @default(1)
   startDate      DateTime
   endDate        DateTime
   isActive       Boolean    @default(true)
