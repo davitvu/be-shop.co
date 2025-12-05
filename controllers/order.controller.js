@@ -208,7 +208,7 @@ const createOrder = async (req, res, next) => {
 
         return new Created({
             message: 'Order created successfully',
-            metadata: formattedOrder
+            data: formattedOrder
         }).send(res);
     } catch (error) {
         next(error);
@@ -329,7 +329,7 @@ const getAllOrders = async (req, res, next) => {
 
         return new OK({
             message: 'Get orders successfully',
-            metadata: {
+            data: {
                 pagination: {
                     currentPage: page,
                     totalPages,
@@ -447,7 +447,7 @@ const getOrderById = async (req, res, next) => {
 
         return new OK({
             message: 'Get order successfully',
-            metadata: formattedOrder
+            data: formattedOrder
         }).send(res);
     } catch (error) {
         next(error)
@@ -583,7 +583,7 @@ const cancelOrder = async (req, res, next) => {
 
         return new OK({
             message: 'Order cancelled successfully',
-            metadata: formattedOrder
+            data: formattedOrder
         }).send(res);
     } catch (error) {
         next(error);
@@ -726,7 +726,7 @@ const getAllOrdersAdmin = async (req, res, next) => {
 
         return new OK({
             message: 'Get orders successfully',
-            metadata: {
+            data: {
                 pagination: {
                     currentPage: page,
                     totalPages,
@@ -861,7 +861,7 @@ const getOrderByIdAdmin = async (req, res, next) => {
 
         return new OK({
             message: 'Get order successfully',
-            metadata: formattedOrder
+            data: formattedOrder
         }).send(res);
     } catch (error) {
         next(error);
@@ -1054,7 +1054,7 @@ const updateOrderStatus = async (req, res, next) => {
 
         return new OK({
             message: 'Order status updated successfully',
-            metadata: formattedOrder
+            data: formattedOrder
         }).send(res);
     } catch (error) {
         next(error);

@@ -145,7 +145,7 @@ const addToCart = async (req, res, next) => {
 
         return new OK({
             message: 'Item added to cart successfully',
-            metadata: formattedItem
+            data: formattedItem
         }).send(res);
     } catch (error) {
         next(error);
@@ -219,7 +219,7 @@ const getCart = async (req, res, next) => {
         if (!cart) {
             return new OK({
                 message: "Cart is empty",
-                metadata: {
+                data: {
                     items: [],
                     summary: {
                         totalItems: 0,
@@ -282,7 +282,7 @@ const getCart = async (req, res, next) => {
 
         return new OK({
             message: 'Get cart successfully',
-            metadata: {
+            data: {
                 items: formattedItems,
                 summary: {
                     totalItems,
@@ -452,7 +452,7 @@ const updateCartItem = async (req, res, next) => {
 
         return new OK({
             message: 'Cart item updated successfully',
-            metadata: formattedItem
+            data: formattedItem
         }).send(res);
     } catch (error) {
         next(error);

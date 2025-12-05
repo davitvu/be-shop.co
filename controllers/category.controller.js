@@ -71,7 +71,7 @@ const getAllCategoriesClient = async (req, res, next) => {
 
         return new OK({
             message: 'Get categories successfully',
-            metadata: {
+            data: {
                 pagination: {
                     currentPage: page,
                     totalPages,
@@ -160,7 +160,7 @@ const getAllCategoriesAdmin = async (req, res, next) => {
 
         return new OK({
             message: 'Get categories successfully',
-            metadata: {
+            data: {
                 pagination: {
                     currentPage: page,
                     totalPages,
@@ -190,7 +190,7 @@ const getCategoryById = async (req, res, next) => {
 
         return new OK({
             message: 'Get category successfully',
-            metadata: {
+            data: {
                 category,
             }
         }).send(res);
@@ -212,7 +212,7 @@ const getCategoryBySlug = async (req, res, next) => {
 
         return new OK({
             message: 'Get category successfully',
-            metadata: {
+            data: {
                 category,
             }
         }).send(res);
@@ -250,7 +250,7 @@ const createCategory = async (req, res, next) => {
 
         return new Created({
             message: "Create category successfully",
-            metadata: {
+            data: {
                 newCagegory
             }
         }).send(res);

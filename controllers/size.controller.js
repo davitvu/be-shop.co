@@ -37,7 +37,7 @@ const createSize = async (req, res, next) => {
 
         return new Created({
             message: "Size created successfully",
-            metadata: size
+            data: size
         }).send(res);
     } catch (error) {
         next(error);
@@ -105,7 +105,7 @@ const getAllSizesAdmin = async (req, res, next) => {
 
         return new OK({
             message: 'Get sizes successfully',
-            metadata: {
+            data: {
                 pagination: {
                     currentPage: page,
                     totalPages,
@@ -136,7 +136,7 @@ const getAllSizesClient = async (req, res, next) => {
 
         return new OK({
             message: 'Get sizes successfully',
-            metadata: sizes
+            data: sizes
         }).send(res);
     } catch (error) {
         next(error);
@@ -160,7 +160,7 @@ const getSizeById = async (req, res, next) => {
 
         return new OK({
             message: 'Get size successfully',
-            metadata: formattedSize
+            data: formattedSize
         }).send(res);
     } catch (error) {
         next(error);
@@ -213,7 +213,7 @@ const updateSize = async (req, res, next) => {
 
         return new OK({
             message: 'Size updated successfully',
-            metadata: formattedSize
+            data: formattedSize
         }).send(res);
     } catch (error) {
         next(error);

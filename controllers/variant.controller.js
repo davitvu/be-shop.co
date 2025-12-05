@@ -120,7 +120,7 @@ const createVariant = async (req, res, next) => {
 
         return new Created({
             message: 'Variant created successfully',
-            metadata: formattedVariant
+            data: formattedVariant
         }).send(res);
     } catch (error) {
         next(error);
@@ -243,7 +243,7 @@ const getAllVariants = async (req, res, next) => {
 
         return new OK({
             message: 'Get variants successfully',
-            metadata: {
+            data: {
                 product,
                 pagination: {
                     currentPage: page,
@@ -338,7 +338,7 @@ const getVariantById = async (req, res, next) => {
 
         return new OK({
             message: 'Get variant successfully',
-            metadata: formattedVariant
+            data: formattedVariant
         }).send(res);
     } catch (error) {
         next(error);
@@ -534,7 +534,7 @@ const updateVariant = async (req, res, next) => {
 
         return new OK({
             message: 'Variant updated successfully',
-            metadata: formattedVariant
+            data: formattedVariant
         }).send(res);
 
     } catch (error) {

@@ -24,9 +24,9 @@ const getProfile = async (req, res, next) => {
             user.addresses = user.addresses.map(({ userId, ...address }) => address);
         }
 
-        return OK({
+        return new OK({
             message: 'Get user successfully',
-            metadata: {
+            data: {
                 user: filterSensitiveUserFields(user),
             }
         }).send(res);
@@ -56,7 +56,7 @@ const updateProfile = async (req, res, next) => {
             data: value
         });
 
-        return OK({
+        return new OK({
             message: 'Profile updated successfully'
         }).send(res);
     } catch (error) {
@@ -112,7 +112,7 @@ const uploadAvatar = async (req, res, next) => {
             await deleteImage(req.user.avatarUrl, 'shop.co/avatars');
         }
 
-        return OK({
+        return new OK({
             message: 'Avatar uploaded successfully'
         }).send(res);
     } catch (error) {
@@ -143,7 +143,7 @@ const deleteAvatar = async (req, res, next) => {
             }
         });
 
-        return OK({ message: 'Avatar deleted successfully' }).send(res);
+        return new OK({ message: 'Avatar deleted successfully' }).send(res);
     } catch (error) {
         next(error);
     }
@@ -236,7 +236,7 @@ const getAllUsers = async (req, res, next) => {
 
         return new OK({
             message: 'Get all users successfully',
-            metadata: {
+            data: {
                 pagination: {
                     currentPage: page,
                     totalPages,
@@ -265,7 +265,7 @@ const getUserById = async (req, res, next) => {
 
         return new OK({
             message: "Get user successfully",
-            metadata: {
+            data: {
                 user
             }
         }).send(res);
@@ -360,7 +360,7 @@ const updateUser = async (req, res, next) => {
 
         return new OK({
             message: 'User updated successfully',
-            metadata: updatedUser
+            data: updatedUser
         }).send(res);
     } catch (error) {
         next(error);

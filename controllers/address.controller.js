@@ -20,7 +20,7 @@ const getAllAddresses = async (req, res, next) => {
 
         return new OK({
             message: "Get address successfully",
-            metadata: {
+            data: {
                 addresses,
                 total: addresses.length
             }
@@ -50,7 +50,7 @@ const getAddressById = async (req, res, next) => {
 
         return new OK({
             message: 'Get address successfully',
-            metadata: addressData
+            data: addressData
         }).send(res);
     } catch (error) {
         next(error);
@@ -113,7 +113,7 @@ const createAddress = async (req, res, next) => {
 
         return new Created({
             message: 'Address created successfully',
-            metadata: newAddress
+            data: newAddress
         }).send(res);
     } catch (error) {
         // Nếu 2 request cùng lúc đều set default, DB sẽ ném unique violation
@@ -202,7 +202,7 @@ const updateAddress = async (req, res, next) => {
 
         return new OK({
             message: 'Address updated successfully',
-            metadata: updatedAddress
+            data: updatedAddress
         }).send(res);
     } catch (error) {
         next(error);
@@ -293,7 +293,7 @@ const setDefaultAddress = async (req, res, next) => {
 
         return new OK({
             message: 'Default address updated successfully',
-            metadata: updatedAddress
+            data: updatedAddress
         }).send(res);
     } catch (error) {
         next(error);

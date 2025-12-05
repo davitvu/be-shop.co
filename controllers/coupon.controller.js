@@ -74,7 +74,7 @@ const createCoupon = async (req, res, next) => {
 
         return new Created({
             message: 'Coupon created successfully',
-            metadata: newCoupon
+            data: newCoupon
         }).send(res);
     } catch (error) {
         next(error);
@@ -169,7 +169,7 @@ const getAllCoupons = async (req, res, next) => {
 
         return new OK({
             message: 'Get coupons successfully',
-            metadata: {
+            data: {
                 pagination: {
                     currentPage: page,
                     totalPages,
@@ -244,7 +244,7 @@ const getCouponByIdAdmin = async (req, res, next) => {
 
         return new OK({
             message: 'Get coupon successfully',
-            metadata: formattedCoupon
+            data: formattedCoupon
         }).send(res);
     } catch (error) {
         next(error);
@@ -355,7 +355,7 @@ const updateCoupon = async (req, res, next) => {
 
         return new OK({
             message: 'Coupon updated successfully',
-            metadata: formattedCoupon
+            data: formattedCoupon
         }).send(res);
     } catch (error) {
         next(error);
@@ -491,7 +491,7 @@ const validateCoupon = async (req, res, next) => {
 
         return new OK({
             message: 'Coupon is valid',
-            metadata: {
+            data: {
                 isValid: true,
                 coupon: {
                     id: coupon.id,
@@ -582,7 +582,7 @@ const getAvailableCoupons = async (req, res, next) => {
 
         return new OK({
             message: 'Get available coupons successfully',
-            metadata: {
+            data: {
                 pagination: {
                     currentPage: page,
                     totalPages,

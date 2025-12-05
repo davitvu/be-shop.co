@@ -36,7 +36,7 @@ const createColor = async (req, res, next) => {
 
         return new Created({
             message: "Color created successfully",
-            metadata: color
+            data: color
         }).send(res);
     } catch (error) {
         next(error);
@@ -105,7 +105,7 @@ const getAllColorsAdmin = async (req, res, next) => {
 
         return new OK({
             message: 'Get colors successfully',
-            metadata: {
+            data: {
                 pagination: {
                     currentPage: page,
                     totalPages,
@@ -136,7 +136,7 @@ const getAllColorsClient = async (req, res, next) => {
 
         return new OK({
             message: "Get colors successfully",
-            metadata: colors
+            data: colors
         }).send(res);
     } catch (error) {
         next(error);
@@ -174,7 +174,7 @@ const getColorById = async (req, res, next) => {
 
         return new OK({
             message: 'Get color successfully',
-            metadata: formattedColor
+            data: formattedColor
         }).send(res);
     } catch (error) {
         next(error);
@@ -235,7 +235,7 @@ const updateColor = async (req, res, next) => {
 
         return new OK({
             message: 'Color updated successfully',
-            metadata: formattedColor
+            data: formattedColor
         }).send(res);
     } catch (error) {
         next(error);

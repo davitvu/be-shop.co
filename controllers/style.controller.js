@@ -51,7 +51,7 @@ const createStyle = async (req, res, next) => {
 
         return new Created({
             message: 'Style created successfully',
-            metadata: style
+            data: style
         }).send(res);
 
     } catch (error) {
@@ -123,7 +123,7 @@ const getAllStylesAdmin = async (req, res, next) => {
 
         return new OK({
             message: 'Get styles successfully',
-            metadata: {
+            data: {
                 pagination: {
                     currentPage: page,
                     totalPages,
@@ -155,7 +155,7 @@ const getAllStylesClient = async (req, res, next) => {
 
         return new OK({
             message: 'Get styles successfully',
-            metadata: styles
+            data: styles
         }).send(res);
 
     } catch (error) {
@@ -199,7 +199,7 @@ const getStyleById = async (req, res, next) => {
 
         return new OK({
             message: 'Get style successfully',
-            metadata: formattedStyle
+            data: formattedStyle
         }).send(res);
     } catch (error) {
         next(error);
@@ -242,7 +242,7 @@ const getStyleBySlug = async (req, res, next) => {
 
         return new OK({
             message: 'Get style successfully',
-            metadata: formattedStyle
+            data: formattedStyle
         }).send(res);
     } catch (error) {
         next(error);
@@ -327,7 +327,7 @@ const updateStyle = async (req, res, next) => {
 
         return new OK({
             message: 'Style updated successfully',
-            metadata: formattedStyle
+            data: formattedStyle
         }).send(res);
 
     } catch (error) {
