@@ -7,6 +7,12 @@ const filterSensitiveUserFields = (user) => {
         emailVerificationExpires,
         resetPasswordToken,
         resetPasswordExpires,
+        password_changed_at,
+        isDeleted,
+        deletedAt,
+        deletedBy,
+        deletedUsers,
+        phone,
         ...filteredUser
     } = user;
 

@@ -23,3 +23,8 @@ MAIL_REFRESH_TOKEN=
 CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
+
+# Google Auth
+GOOGLE_CLIENT_ID="xxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="xxxxxxxxxxxxxxxxxxxxxx"
+GOOGLE_REDIRECT_URI="http://localhost:4000/auth/google/callback"

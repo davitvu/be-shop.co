@@ -9,6 +9,7 @@ const otpGenerator = require('otp-generator');
 const SendMailForgotPassword = require('../utils/sendEmail/forgotPassword');
 const SendVerificationEmail = require('../utils/sendEmail/emailVerify');
 const { filterSensitiveUserFields } = require('../utils/filterSensitiveUserFields');
+const { getGoogleTokens, verifyGoogleIdToken, getGoogleAuthURL } = require('../utils/googleAuth');
 
 const generateAccessToken = (payload) => {
     return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN })
@@ -108,9 +109,6 @@ const login = async (req, res, next) => {
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user) throw new NotFoundError('Invalid email or password');
 
-        // Check email verify
-        if (!user.isEmailVerified) throw new BadRequestError('Please verify your email before logging in');
-
         // Check isActive
         if (!user.isActive) throw new ForbiddenError('Your account has been locked. Please contact administrator');
 
@@ -124,7 +122,7 @@ const login = async (req, res, next) => {
 
         return new OK({
             message: 'Login successful',
-            metadata: {
+            data: {
                 user: filterSensitiveUserFields(user)
             }
         }).send(res);
@@ -158,7 +156,7 @@ const refreshToken = async (req, res, next) => {
 
         return new OK({
             message: 'Token refreshed successfully',
-        });
+        }).send(res);
     } catch (error) {
         next(error);
     }
@@ -178,7 +176,7 @@ const logout = async (req, res, next) => {
 
         return new OK({
             message: 'Logout successful. Please remove tokens from client storage.',
-        });
+        }).send(res);
     } catch (error) {
         next(error);
     }
@@ -190,6 +188,8 @@ const forgotPassword = async (req, res, next) => {
 
         const findUser = await prisma.user.findFirst({ where: { email } });
         if (!findUser) return new OK({ message: 'If email exists, OTP has been sent' }).send(res);
+        if (!findUser.isActive) throw new ForbiddenError('Your account has been locked. Please contact administrator');
+        if (findUser.isDeleted) throw new ForbiddenError('Your account has been deleted.');
 
         const otp = otpGenerator.generate(6, {
             digits: true,
@@ -227,7 +227,7 @@ const forgotPassword = async (req, res, next) => {
     }
 }
 
-const verifyOtpForgotPassword = async (req, res, next) => {
+const verifyOtpAndToken = async (req, res, next) => {
     try {
         const { otp } = req.body;
         const tokenForgotPassword = req.cookies.tokenForgotPassword;
@@ -249,7 +249,6 @@ const verifyOtpForgotPassword = async (req, res, next) => {
             }
         })
         if (!user) throw new BadRequestError("OTP is incorrect");
-
         if (!user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
             throw new BadRequestError('OTP expired, please request again');
         }
@@ -264,7 +263,7 @@ const verifyOtpForgotPassword = async (req, res, next) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Strict',
-            maxAge: 6 * 60 * 1000
+            maxAge: 5 * 60 * 1000
         });
 
         res.clearCookie('tokenForgotPassword');
@@ -275,7 +274,32 @@ const verifyOtpForgotPassword = async (req, res, next) => {
     }
 }
 
-const changePasswordWithOtp = async (req, res, next) => {
+const checkStepResetPassword = async (req, res, next) => {
+    try {
+        const verifiedOtpToken = req.cookies.verifiedOtpToken;
+        if (!verifiedOtpToken) throw new BadRequestError("Invalid data, please request again");
+
+        let decoded;
+        try {
+            decoded = jwt.verify(verifiedOtpToken, process.env.JWT_SECRET);
+        } catch (e) {
+            if (e.name === 'TokenExpiredError') throw new BadRequestError('Token expired, please request again');
+            throw new BadRequestError('Invalid token');
+        }
+        if (!decoded.otpVerified) throw new BadRequestError("OTP not verified");
+
+        const user = await prisma.user.findFirst({ where: { email: decoded.email } });
+        if (!user) throw new BadRequestError("Invalid Email or User not found");
+
+        return new OK({
+            message: "Authentication successful, proceed to reset password"
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+const resetPassword = async (req, res, next) => {
     try {
         const { password } = req.body;
         const verifiedOtpToken = req.cookies.verifiedOtpToken;
@@ -405,6 +429,92 @@ const verifyEmail = async (req, res, next) => {
     }
 }
 
+const getGoogleLoginUrl = async (req, res, next) => {
+    try {
+        const url = getGoogleAuthURL();
+
+        return new OK({
+            message: "Get Google login url successfully",
+            data: {
+                url
+            }
+        }).send(res);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const googleCallback = async (req, res, next) => {
+    try {
+        const code = req.query.code;
+        if (!code) throw new BadRequestError("Missing code from Google");
+
+        // 1. ddổi code lấy Token
+        const tokens = await getGoogleTokens(code);
+        const idToken = tokens.id_token;
+        if (!idToken) throw new BadRequestError("No id_token returned from Google");
+
+        // 2. verify id_token
+        const payload = await verifyGoogleIdToken(idToken);
+        const googleId = payload.sub;
+        const email = payload.email;
+        const name = payload.name;
+        const picture = payload.picture;
+
+        if (!email) throw new BadRequestError("Google account has no email");
+
+        // 3. tìm hoặc tạo user
+        let user = await prisma.user.findUnique({
+            where: { email }
+        });
+        if (!user) {
+            const partsName = name
+                ? name.trim().split(" ").filter(Boolean)
+                : email.split("@")[0];
+
+            let firstName = "";
+            let lastName = "";
+            if (partsName.length === 1) {
+                firstName = partsName[0];
+                lastName = "";
+            } else if (partsName.length > 1) {
+                firstName = partsName[0];
+                lastName = partsName.slice(1).join(" ");
+            }
+
+            user = await prisma.user.create({
+                data: {
+                    email,
+                    firstName,
+                    lastName,
+                    googleId,
+                    avatarUrl: picture || `${process.env.FE_URL}/default.png`
+                }
+            });
+        } else if (!user.googleId) {
+            user = await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    googleId,
+                    avatarUrl: picture || `${process.env.FE_URL}/default.png`
+                }
+            });
+        }
+
+        // 4. tạo accessToken và refreshToken
+        const accessToken = generateAccessToken({ id: user.id, email: user.email, role: user.role });
+        const refreshToken = generateRefreshToken({ id: user.id, email: user.email, role: user.role });
+
+        setCookie(res, accessToken, refreshToken);
+
+        const redirectUrl = `${process.env.FE_URL}/auth/callback` || 'http://localhost:5173/auth/callback';
+
+        return res.redirect(redirectUrl);
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     register,
     login,
@@ -412,8 +522,11 @@ module.exports = {
     logout,
     hashedPassword,
     forgotPassword,
-    verifyOtpForgotPassword,
-    changePasswordWithOtp,
+    verifyOtpAndToken,
+    resetPassword,
+    checkStepResetPassword,
     sendVerificationEmail,
-    verifyEmail
+    verifyEmail,
+    googleCallback,
+    getGoogleLoginUrl
 }
