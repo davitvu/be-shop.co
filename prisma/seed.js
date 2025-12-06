@@ -2211,6 +2211,350 @@ async function main() {
         },
     });
 
+    const order7 = await prisma.order.create({
+        data: {
+            orderNumber: 'ORD-007',
+            userId: grace.id,
+            shippingName: 'Grace Lee',
+            shippingPhone: '0900000007',
+            shippingAddress: addrGraceHome.address,
+            shippingWard: addrGraceHome.ward,
+            shippingDistrict: addrGraceHome.district,
+            shippingCity: addrGraceHome.city,
+            subtotal: p1v1.price + p9v2.price,
+            shippingFee: 30000,
+            tax: 0,
+            discount: 0,
+            total: p1v1.price + p9v2.price + 30000,
+            paymentMethod: PaymentMethod.COD,
+            paymentStatus: PaymentStatus.PENDING,
+            status: OrderStatus.PENDING,
+            notes: 'Please deliver carefully',
+        },
+    });
+
+    await prisma.orderItem.create({
+        data: {
+            orderId: order7.id,
+            productId: product1.id,
+            productName: product1.name,
+            productSlug: product1.slug,
+            variantId: p1v1.id,
+            variantSku: p1v1.sku,
+            colorName: black.name,
+            colorHex: black.hex,
+            sizeName: sizeM.name,
+            sizeValue: sizeM.value,
+            imageUrl: 'https://via.placeholder.com/600x800?text=Basic+Black+T-Shirt+M',
+            price: p1v1.price,
+            quantity: 1,
+            subtotal: p1v1.price,
+        },
+    });
+
+    await prisma.orderItem.create({
+        data: {
+            orderId: order7.id,
+            productId: product9.id,
+            productName: product9.name,
+            productSlug: product9.slug,
+            variantId: p9v2.id,
+            variantSku: p9v2.sku,
+            colorName: purple.name,
+            colorHex: purple.hex,
+            sizeName: sizeM.name,
+            sizeValue: sizeM.value,
+            imageUrl: 'https://via.placeholder.com/600x800?text=Purple+Evening+Dress+M',
+            price: p9v2.price,
+            quantity: 1,
+            subtotal: p9v2.price,
+        },
+    });
+
+    const order8 = await prisma.order.create({
+        data: {
+            orderNumber: 'ORD-008',
+            userId: henry.id,
+            shippingName: 'Henry Clark',
+            shippingPhone: '0900000008',
+            shippingAddress: addrHenryHome.address,
+            shippingWard: addrHenryHome.ward,
+            shippingDistrict: addrHenryHome.district,
+            shippingCity: addrHenryHome.city,
+            subtotal: p2v1.price,
+            shippingFee: 25000,
+            tax: 0,
+            discount: 0,
+            total: p2v1.price + 25000,
+            paymentMethod: PaymentMethod.VNPAY,
+            paymentStatus: PaymentStatus.PAID,
+            status: OrderStatus.CONFIRMED,
+            notes: 'Office wear',
+        },
+    });
+
+    await prisma.orderItem.create({
+        data: {
+            orderId: order8.id,
+            productId: product2.id,
+            productName: product2.name,
+            productSlug: product2.slug,
+            variantId: p2v1.id,
+            variantSku: p2v1.sku,
+            colorName: white.name,
+            colorHex: white.hex,
+            sizeName: sizeM.name,
+            sizeValue: sizeM.value,
+            imageUrl: 'https://via.placeholder.com/600x800?text=White+Formal+Shirt+M',
+            price: p2v1.price,
+            quantity: 1,
+            subtotal: p2v1.price,
+        },
+    });
+
+    const order9 = await prisma.order.create({
+        data: {
+            orderNumber: 'ORD-009',
+            userId: alice.id,
+            shippingName: 'Alice Nguyen',
+            shippingPhone: '0900000001',
+            shippingAddress: addrAliceHome.address,
+            shippingWard: addrAliceHome.ward,
+            shippingDistrict: addrAliceHome.district,
+            shippingCity: addrAliceHome.city,
+            subtotal: p10v1.price + p11v1.price,
+            shippingFee: 30000,
+            tax: 0,
+            discount: 0,
+            total: p10v1.price + p11v1.price + 30000,
+            paymentMethod: PaymentMethod.COD,
+            paymentStatus: PaymentStatus.PENDING,
+            status: OrderStatus.PENDING,
+            notes: 'Order for casual wear',
+        },
+    });
+
+    await prisma.orderItem.create({
+        data: {
+            orderId: order9.id,
+            productId: product10.id,
+            productName: product10.name,
+            productSlug: product10.slug,
+            variantId: p10v1.id,
+            variantSku: p10v1.sku,
+            colorName: beige.name,
+            colorHex: beige.hex,
+            sizeName: sizeM.name,
+            sizeValue: sizeM.value,
+            imageUrl: 'https://via.placeholder.com/600x800?text=Beige+Chino+Pants+M',
+            price: p10v1.price,
+            quantity: 1,
+            subtotal: p10v1.price,
+        },
+    });
+
+    await prisma.orderItem.create({
+        data: {
+            orderId: order9.id,
+            productId: product11.id,
+            productName: product11.name,
+            productSlug: product11.slug,
+            variantId: p11v1.id,
+            variantSku: p11v1.sku,
+            colorName: green.name,
+            colorHex: green.hex,
+            sizeName: sizeS.name,
+            sizeValue: sizeS.value,
+            imageUrl: 'https://via.placeholder.com/600x800?text=Green+Hoodie+S',
+            price: p11v1.price,
+            quantity: 1,
+            subtotal: p11v1.price,
+        },
+    });
+
+    const order10 = await prisma.order.create({
+        data: {
+            orderNumber: 'ORD-010',
+            userId: bob.id,
+            shippingName: 'Bob Smith',
+            shippingPhone: '0900000002',
+            shippingAddress: addrBobHome.address,
+            shippingWard: addrBobHome.ward,
+            shippingDistrict: addrBobHome.district,
+            shippingCity: addrBobHome.city,
+            subtotal: p12v1.price + p13v1.price,
+            shippingFee: 30000,
+            tax: 0,
+            discount: 0,
+            total: p12v1.price + p13v1.price + 30000,
+            paymentMethod: PaymentMethod.VNPAY,
+            paymentStatus: PaymentStatus.PAID,
+            status: OrderStatus.CONFIRMED,
+            notes: 'Hoodie collection',
+        },
+    });
+
+    await prisma.orderItem.create({
+        data: {
+            orderId: order10.id,
+            productId: product12.id,
+            productName: product12.name,
+            productSlug: product12.slug,
+            variantId: p12v1.id,
+            variantSku: p12v1.sku,
+            colorName: black.name,
+            colorHex: black.hex,
+            sizeName: sizeXS.name,
+            sizeValue: sizeXS.value,
+            imageUrl: 'https://via.placeholder.com/600x800?text=Black+Hoodie+XS',
+            price: p12v1.price,
+            quantity: 1,
+            subtotal: p12v1.price,
+        },
+    });
+
+    await prisma.orderItem.create({
+        data: {
+            orderId: order10.id,
+            productId: product13.id,
+            productName: product13.name,
+            productSlug: product13.slug,
+            variantId: p13v1.id,
+            variantSku: p13v1.sku,
+            colorName: red.name,
+            colorHex: red.hex,
+            sizeName: sizeS.name,
+            sizeValue: sizeS.value,
+            imageUrl: 'https://via.placeholder.com/600x800?text=Red+Hoodie+S',
+            price: p13v1.price,
+            quantity: 1,
+            subtotal: p13v1.price,
+        },
+    });
+
+    const order11 = await prisma.order.create({
+        data: {
+            orderNumber: 'ORD-011',
+            userId: charlie.id,
+            shippingName: 'Charlie Brown',
+            shippingPhone: '0900000003',
+            shippingAddress: addrCharlieHome.address,
+            shippingWard: addrCharlieHome.ward,
+            shippingDistrict: addrCharlieHome.district,
+            shippingCity: addrCharlieHome.city,
+            subtotal: p14v1.price,
+            shippingFee: 30000,
+            tax: 0,
+            discount: 0,
+            total: p14v1.price + 30000,
+            paymentMethod: PaymentMethod.MOMO,
+            paymentStatus: PaymentStatus.PAID,
+            status: OrderStatus.PROCESSING,
+            notes: 'Denim collection',
+        },
+    });
+
+    await prisma.orderItem.create({
+        data: {
+            orderId: order11.id,
+            productId: product14.id,
+            productName: product14.name,
+            productSlug: product14.slug,
+            variantId: p14v1.id,
+            variantSku: p14v1.sku,
+            colorName: blue.name,
+            colorHex: blue.hex,
+            sizeName: sizeS.name,
+            sizeValue: sizeS.value,
+            imageUrl: 'https://via.placeholder.com/600x800?text=Blue+Denim+Jeans+S',
+            price: p14v1.price,
+            quantity: 1,
+            subtotal: p14v1.price,
+        },
+    });
+
+    const order12 = await prisma.order.create({
+        data: {
+            orderNumber: 'ORD-012',
+            userId: diana.id,
+            shippingName: 'Diana Johnson',
+            shippingPhone: '0900000004',
+            shippingAddress: addrDianaHome.address,
+            shippingWard: addrDianaHome.ward,
+            shippingDistrict: addrDianaHome.district,
+            shippingCity: addrDianaHome.city,
+            subtotal: p16v1.price,
+            shippingFee: 30000,
+            tax: 0,
+            discount: 0,
+            total: p16v1.price + 30000,
+            paymentMethod: PaymentMethod.STRIPE,
+            paymentStatus: PaymentStatus.PAID,
+            status: OrderStatus.SHIPPING,
+            notes: 'Sport shorts',
+        },
+    });
+
+    await prisma.orderItem.create({
+        data: {
+            orderId: order12.id,
+            productId: product16.id,
+            productName: product16.name,
+            productSlug: product16.slug,
+            variantId: p16v1.id,
+            variantSku: p16v1.sku,
+            colorName: navy.name,
+            colorHex: navy.hex,
+            sizeName: sizeS.name,
+            sizeValue: sizeS.value,
+            imageUrl: 'https://via.placeholder.com/600x800?text=Navy+Sport+Shorts+S',
+            price: p16v1.price,
+            quantity: 1,
+            subtotal: p16v1.price,
+        },
+    });
+
+    const order13 = await prisma.order.create({
+        data: {
+            orderNumber: 'ORD-013',
+            userId: emma.id,
+            shippingName: 'Emma Wilson',
+            shippingPhone: '0900000005',
+            shippingAddress: addrEmmaHome.address,
+            shippingWard: addrEmmaHome.ward,
+            shippingDistrict: addrEmmaHome.district,
+            shippingCity: addrEmmaHome.city,
+            subtotal: p15v1.price,
+            shippingFee: 30000,
+            tax: 0,
+            discount: 0,
+            total: p15v1.price + 30000,
+            paymentMethod: PaymentMethod.PAYPAL,
+            paymentStatus: PaymentStatus.PENDING,
+            status: OrderStatus.PENDING,
+            notes: 'Purple shirt',
+        },
+    });
+
+    await prisma.orderItem.create({
+        data: {
+            orderId: order13.id,
+            productId: product15.id,
+            productName: product15.name,
+            productSlug: product15.slug,
+            variantId: p15v1.id,
+            variantSku: p15v1.sku,
+            colorName: purple.name,
+            colorHex: purple.hex,
+            sizeName: sizeXS.name,
+            sizeValue: sizeXS.value,
+            imageUrl: 'https://via.placeholder.com/600x800?text=Purple+T-Shirt+XS',
+            price: p15v1.price,
+            quantity: 1,
+            subtotal: p15v1.price,
+        },
+    });
+
     console.log('📋 Orders created\n')
 
     // ==== COUPONS ====
@@ -2387,7 +2731,7 @@ async function main() {
         data: {
             userId: grace.id,
             productId: product1.id,
-            orderId: order1.id,
+            orderId: order7.id,
             rating: 4,
             comment: 'Áo thun cơ bản nhưng chất lượng khá tốt. Giá cảm thấy hợp lý.',
         },
@@ -2397,9 +2741,336 @@ async function main() {
         data: {
             userId: henry.id,
             productId: product2.id,
-            orderId: order2.id,
+            orderId: order8.id,
             rating: 5,
             comment: 'Áo sơ mi trắng đẹp, rất chuyên nghiệp. Mình dùng cho công sở.',
+        },
+    });
+
+    // ===== REVIEWS CHO PRODUCT 10 (Beige Chino Pants) =====
+    await prisma.review.create({
+        data: {
+            userId: alice.id,
+            productId: product10.id,
+            orderId: order9.id,
+            rating: 5,
+            comment: 'Quần chinos beige rất đẹp, co giãn vừa phải, mặc công sở hoặc casual đều được.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: bob.id,
+            productId: product10.id,
+            orderId: order10.id,
+            rating: 4,
+            comment: 'Chất liệu tốt, form chuẩn. Một chút nếp nhăn sau khi giặt.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: charlie.id,
+            productId: product10.id,
+            orderId: order11.id,
+            rating: 5,
+            comment: 'Tuyệt vời! Quần rất thoải mái và bền bỉ.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: diana.id,
+            productId: product10.id,
+            orderId: order12.id,
+            rating: 4,
+            comment: 'Màu đẹp, chỉ hơi sáng so với ảnh trên web.',
+        },
+    });
+
+    // ===== REVIEWS CHO PRODUCT 11 (Green Hoodie) =====
+    await prisma.review.create({
+        data: {
+            userId: emma.id,
+            productId: product11.id,
+            orderId: order13.id,
+            rating: 5,
+            comment: 'Áo hoodie xanh lá đẹp lắm! Chất vải dày, ấm áp, in logo sắc nét.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: frank.id,
+            productId: product11.id,
+            orderId: order9.id,
+            rating: 4,
+            comment: 'Áo hoodie chất lượng tốt, mặc thoải mái. Hơi dài một chút.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: grace.id,
+            productId: product11.id,
+            orderId: order7.id,
+            rating: 5,
+            comment: 'Rất hài lòng! Áo mặc như hình, chất vải mềm và giữ hình tốt.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: henry.id,
+            productId: product11.id,
+            orderId: order8.id,
+            rating: 4,
+            comment: 'Hoodie xanh lá đẹp, phù hợp mùa lạnh. Giá tương đối hợp lý.',
+        },
+    });
+
+    // ===== REVIEWS CHO PRODUCT 12 (Black Hoodie) =====
+    await prisma.review.create({
+        data: {
+            userId: alice.id,
+            productId: product12.id,
+            orderId: order9.id,
+            rating: 5,
+            comment: 'Áo hoodie đen cơ bản nhưng chất lượng tuyệt vời. Mặc cả năm được.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: bob.id,
+            productId: product12.id,
+            orderId: order10.id,
+            rating: 5,
+            comment: 'Hoodie đen đẹp, chất vải dày và bền. Rất đáng tiền.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: charlie.id,
+            productId: product12.id,
+            orderId: order11.id,
+            rating: 4,
+            comment: 'Chất tốt, mặc thoải mái. Hơi ứ mồ hôi khi mặc lâu.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: diana.id,
+            productId: product12.id,
+            orderId: order12.id,
+            rating: 5,
+            comment: 'Áo hoodie hoàn hảo! Mặc được cả ngày, không bí bách.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: emma.id,
+            productId: product12.id,
+            orderId: order13.id,
+            rating: 4,
+            comment: 'Hoodie đen đẹp, tôi mua 2 cái. Chỉ hơi bị phai sau vài lần giặt.',
+        },
+    });
+
+    // ===== REVIEWS CHO PRODUCT 13 (Red Hoodie) =====
+    await prisma.review.create({
+        data: {
+            userId: frank.id,
+            productId: product13.id,
+            orderId: order10.id,
+            rating: 5,
+            comment: 'Áo hoodie đỏ nổi bật, chất vải tốt, màu sắc rực rỡ. Rất hài lòng!',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: grace.id,
+            productId: product13.id,
+            orderId: order7.id,
+            rating: 4,
+            comment: 'Hoodie đỏ đẹp, mặc thoải mái. Hơi nhỏ size so với hoodie khác.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: henry.id,
+            productId: product13.id,
+            orderId: order8.id,
+            rating: 5,
+            comment: 'Tuyệt vời! Áo hoodie đỏ rất nổi và chất lượng tốt.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: alice.id,
+            productId: product13.id,
+            orderId: order9.id,
+            rating: 4,
+            comment: 'Hoodie đỏ đẹp, chỉ hơi rộng một chút.',
+        },
+    });
+
+    // ===== REVIEWS CHO PRODUCT 14 (Blue Denim Jeans) =====
+    await prisma.review.create({
+        data: {
+            userId: bob.id,
+            productId: product14.id,
+            orderId: order10.id,
+            rating: 5,
+            comment: 'Quần jeans xanh denim tuyệt vời! Chất co giãn tốt, bền bỉ.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: charlie.id,
+            productId: product14.id,
+            orderId: order11.id,
+            rating: 5,
+            comment: 'Quần jeans xanh đẹp, form chuẩn, mặc rất thoải mái.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: diana.id,
+            productId: product14.id,
+            orderId: order12.id,
+            rating: 4,
+            comment: 'Jeans xanh đẹp, chất tốt. Hơi bị xỉn sau 2-3 lần giặt.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: emma.id,
+            productId: product14.id,
+            orderId: order13.id,
+            rating: 5,
+            comment: 'Quần jeans xanh denim cực tốt! Mặc mọi dịp được.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: frank.id,
+            productId: product14.id,
+            orderId: order6.id,
+            rating: 4,
+            comment: 'Jeans chất lượng tốt, co giãn vừa phải. Giá hơi cao một chút.',
+        },
+    });
+
+    // ===== REVIEWS CHO PRODUCT 15 (Purple T-Shirt) =====
+    await prisma.review.create({
+        data: {
+            userId: grace.id,
+            productId: product15.id,
+            orderId: order7.id,
+            rating: 5,
+            comment: 'Áo thun tím sẫm đẹp lắm! Chất cotton mềm mại, không xù lông.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: henry.id,
+            productId: product15.id,
+            orderId: order8.id,
+            rating: 5,
+            comment: 'Áo thun tím rất đẹp, màu sắc rực rỡ, chất tốt.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: alice.id,
+            productId: product15.id,
+            orderId: order9.id,
+            rating: 4,
+            comment: 'Áo thun tím tốt, chỉ hơi nhỏ size một chút.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: bob.id,
+            productId: product15.id,
+            orderId: order10.id,
+            rating: 5,
+            comment: 'Áo thun tím đẹp, mặc thoải mái, giá hợp lý.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: charlie.id,
+            productId: product15.id,
+            orderId: order11.id,
+            rating: 4,
+            comment: 'Thun tím chất tốt, mặc được cả năm.',
+        },
+    });
+
+    // ===== REVIEWS CHO PRODUCT 16 (Navy Sport Shorts) =====
+    await prisma.review.create({
+        data: {
+            userId: diana.id,
+            productId: product16.id,
+            orderId: order12.id,
+            rating: 5,
+            comment: 'Quần short xanh navy thoáng mát, nhanh khô, rất thích hợp cho thể thao.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: emma.id,
+            productId: product16.id,
+            orderId: order13.id,
+            rating: 5,
+            comment: 'Short navy đẹp, chất vải tốt, phù hợp chơi thể thao.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: frank.id,
+            productId: product16.id,
+            orderId: order6.id,
+            rating: 4,
+            comment: 'Quần short xanh navy chất lượng tốt, hơi bộp một chút.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: grace.id,
+            productId: product16.id,
+            orderId: order7.id,
+            rating: 5,
+            comment: 'Short navy tuyệt vời! Thoáng mát, nhanh khô, mặc rất thoải mái.',
+        },
+    });
+
+    await prisma.review.create({
+        data: {
+            userId: henry.id,
+            productId: product16.id,
+            orderId: order8.id,
+            rating: 4,
+            comment: 'Short xanh navy chất tốt, nhanh khô. Giá tương đối cao.',
         },
     });
 

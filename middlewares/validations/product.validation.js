@@ -184,11 +184,31 @@ const updateProductImageSchema = Joi.object({
     sortOrder: Joi.number().integer().min(0).optional()
 }).min(1);
 
+const getNewArrivalsSchema = Joi.object({
+    limit: Joi.number().integer().min(1).max(20).default(10)
+});
+
+const getTopSellingSchema = Joi.object({
+    limit: Joi.number().integer().min(1).max(20).default(10)
+});
+
+const getTopRatedProductsSchema = Joi.object({
+    limit: Joi.number().integer().min(1).max(20).default(10)
+});
+
+const getRelatedProductsSchema = Joi.object({
+    limit: Joi.number().integer().min(1).max(22).default(10)
+});
+
 module.exports = {
     getAllProductsAdminSchema,
     createProductSchema,
     uploadProductImagesSchema,
     updateProductImageSchema,
     updateProductSchema,
-    getAllProductsClientSchema
+    getAllProductsClientSchema,
+    getNewArrivalsSchema,
+    getTopSellingSchema,
+    getTopRatedProductsSchema,
+    getRelatedProductsSchema
 };

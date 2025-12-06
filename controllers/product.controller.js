@@ -1,10 +1,11 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { deleteMultipleImages, deleteImage } = require("../utils/cloudinary.helper");
-const { createProductSchema, updateProductImageSchema, uploadProductImagesSchema, getAllProductsAdminSchema, updateProductSchema, getAllProductsClientSchema, } = require('../middlewares/validations/product.validation');
+const { createProductSchema, updateProductImageSchema, uploadProductImagesSchema, getAllProductsAdminSchema, updateProductSchema, getAllProductsClientSchema, getNewArrivalsSchema, getTopSellingSchema, getRelatedProductsSchema, } = require('../middlewares/validations/product.validation');
 const { Created, OK } = require('../utils/core/successResponse');
 const { ConflictRequestError, BadRequestError, NotFoundError } = require('../utils/core/errorResponse');
 const { generateSlugAndCheckExists } = require('../utils/generateSlug');
+const { validate } = require('../utils/validateSchema');
 
 /** Admin */
 const createProduct = async (req, res, next) => {
@@ -86,7 +87,7 @@ const createProduct = async (req, res, next) => {
 
         return new Created({
             message: 'Product created successfully',
-            metadata: formattedProduct
+            data: formattedProduct
         }).send(res);
     } catch (error) {
         next(error);
@@ -258,7 +259,7 @@ const getAllProductsAdmin = async (req, res, next) => {
 
         return new OK({
             message: 'Get products successfully',
-            metadata: {
+            data: {
                 pagination: {
                     currentPage: page,
                     totalPages,
@@ -435,7 +436,7 @@ const getProductByIdAdmin = async (req, res, next) => {
 
         return new OK({
             message: 'Get product successfully',
-            metadata: formattedProduct
+            data: formattedProduct
         }).send(res);
     } catch (error) {
         next(error);
@@ -593,7 +594,7 @@ const updateProduct = async (req, res, next) => {
 
         return new OK({
             message: 'Product updated successfully',
-            metadata: formattedProduct
+            data: formattedProduct
         }).send(res);
     } catch (error) {
         next(error);
@@ -769,7 +770,7 @@ const restoreProduct = async (req, res, next) => {
 
         return new OK({
             message: 'Product restored successfully',
-            metadata: formattedProduct
+            data: formattedProduct
         }).send(res);
     } catch (error) {
         next(error);
@@ -925,7 +926,7 @@ const uploadProductImages = async (req, res, next) => {
 
         return new Created({
             message: `${uploadedImages.length} image(s) uploaded successfully`,
-            metadata: uploadedImages
+            data: uploadedImages
         }).send(res);
     } catch (error) {
         // Xóa tất cả ảnh vừa upload nếu có lỗi
@@ -978,7 +979,7 @@ const getProductImages = async (req, res, next) => {
 
         return new OK({
             message: 'Get product images successfully',
-            metadata: images
+            data: images
         }).send(res);
     } catch (error) {
         next(error);
@@ -1051,7 +1052,7 @@ const updateProductImage = async (req, res, next) => {
 
         return new OK({
             message: 'Image updated successfully',
-            metadata: updatedImage
+            data: updatedImage
         }).send(res);
     } catch (error) {
         next(error)
@@ -1283,7 +1284,7 @@ const reorderProductImages = async (req, res, next) => {
 
         return new OK({
             message: 'Images reordered successfully',
-            metadata: updatedImages
+            data: updatedImages
         }).send(res);
     } catch (error) {
         next(error);
@@ -1348,7 +1349,7 @@ const getAllProductsClient = async (req, res, next) => {
                 // ko tim thay category return trong
                 return new OK({
                     message: 'Get products successfully',
-                    metadata: {
+                    data: {
                         products: [],
                         pagination: {
                             currentPage: page,
@@ -1382,7 +1383,7 @@ const getAllProductsClient = async (req, res, next) => {
                     // ko co style nao return rong
                     return new OK({
                         message: 'Get products successfully',
-                        metadata: {
+                        data: {
                             products: [],
                             pagination: {
                                 currentPage: page,
@@ -1491,7 +1492,7 @@ const getAllProductsClient = async (req, res, next) => {
 
         return new OK({
             message: 'Get products successfully',
-            metadata: {
+            data: {
                 pagination: {
                     currentPage: page,
                     totalPages,
@@ -1670,12 +1671,236 @@ const getProductBySlugClient = async (req, res, next) => {
 
         return new OK({
             message: 'Get product successfully',
-            metadata: formattedProduct
+            data: formattedProduct
         }).send(res);
     } catch (error) {
         next(error);
     }
-}
+};
+
+const getNewArrivals = async (req, res, next) => {
+    try {
+        const { limit } = validate(getNewArrivalsSchema, req.query);
+
+        // lay san pham moi nhat
+        const products = await prisma.product.findMany({
+            where: {
+                isDeleted: false,
+                isPublished: true
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            take: limit,
+            select: {
+                id: true,
+                name: true,
+                slug: true,
+                price: true,
+                stock: true,
+                images: {
+                    where: { isMain: true },
+                    take: 1,
+                    select: {
+                        url: true
+                    }
+                },
+                category: {
+                    select: {
+                        name: true,
+                        slug: true
+                    }
+                },
+                styles: {
+                    select: {
+                        style: {
+                            select: {
+                                id: true,
+                                name: true,
+                                slug: true
+                            }
+                        }
+                    }
+                },
+                _count: {
+                    select: {
+                        reviews: true
+                    }
+                }
+            }
+        });
+
+        console.log(products[0])
+
+        // format vả tính rate trung bình 
+        const productsWithRating = await Promise.all(
+            products.map(async (product) => {
+                const ratings = await prisma.review.aggregate({
+                    where: { productId: product.id },
+                    _avg: { rating: true }
+                });
+
+                return {
+                    id: product.id,
+                    name: product.name,
+                    slug: product.slug,
+                    price: product.price,
+                    stock: product.stock,
+                    imageUrl: product.images[0]?.url || null,
+                    category: product.category,
+                    styles: product.styles.map(ps => ps.style),
+                    rating: ratings._avg.rating ? parseFloat(ratings._avg.rating.toFixed(1)) : 0,
+                    reviewCount: product._count.reviews
+                };
+            })
+        );
+
+        return new OK({
+            message: 'Get new arrivals successfully',
+            data: {
+                total: productsWithRating.length,
+                products: productsWithRating
+            }
+        }).send(res);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getTopSelling = async (req, res, next) => {
+    try {
+        const { limit } = validate(getTopSellingSchema, req.query);
+
+        const topSellingItems = await prisma.orderItem.groupBy({
+            by: ['productId'],
+            where: {
+                order: {
+                    status: { notIn: ['CANCELLED', 'REFUNDED'] }
+                }
+            },
+            _sum: {
+                quantity: true
+            },
+            orderBy: {
+                _sum: {
+                    quantity: 'desc'
+                }
+            },
+            take: limit
+        });
+
+        const productIds = topSellingItems.map(item => item.productId);
+
+        const products = await prisma.product.findMany({
+            where: {
+                id: { in: productIds },
+                isDeleted: false,
+                isPublished: true
+            },
+            select: {
+                id: true,
+                name: true,
+                slug: true,
+                price: true,
+                stock: true,
+                images: {
+                    where: { isMain: true },
+                    take: 1,
+                    select: {
+                        url: true
+                    }
+                },
+                category: {
+                    select: {
+                        name: true,
+                        slug: true
+                    }
+                },
+                _count: {
+                    select: {
+                        reviews: true
+                    }
+                }
+            }
+        });
+
+        const productsMap = {};
+        products.forEach(p => {
+            productsMap[p.id] = p;
+        });
+
+        const productsWithData = await Promise.all(
+            topSellingItems
+                .filter(item => productsMap[item.productId])
+                .map(async (item) => {
+                    const product = productsMap[item.productId];
+
+                    const ratings = await prisma.review.aggregate({
+                        where: { productId: product.id },
+                        _avg: { rating: true }
+                    });
+
+                    return {
+                        id: product.id,
+                        name: product.name,
+                        slug: product.slug,
+                        price: product.price,
+                        stock: product.stock,
+                        imageUrl: product.images[0]?.url || null,
+                        category: product.category,
+                        rating: ratings._avg.rating ? parseFloat(ratings._avg.rating.toFixed(1)) : 0,
+                        reviewCount: product._count.reviews,
+                        soldQuantity: item._sum.quantity
+                    }
+                })
+        );
+
+        return new OK({
+            message: 'Get top selling products successfully',
+            data: {
+                products: productsWithData,
+                total: productsWithData.length
+            }
+        }).send(res);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getRelatedProducts = async (req, res, next) => {
+    try {
+        const { productId } = req.params;
+
+        const { limit } = validate(getRelatedProductsSchema, req.query);
+
+        const currentProduct = await prisma.product.findUnique({
+            where: { id: productId },
+            select: {
+                categoryId: true,
+                price: true
+            }
+        });
+        if (!currentProduct) throw new NotFoundError('Product not found');
+
+        console.log(currentProduct);
+
+        // lay san pham co gia tien tuong duong va category tuong duong
+        const priceMin = currentProduct.price * 0.7; // -30%
+        const priceMax = currentProduct.price * 1.3; // +30%
+
+        const relatedProducts = await prisma.product.findMany({
+            where: {
+                id: { not: productId },
+                categoryId: currentProduct.categoryId,
+                isDeleted: fales,
+                isPublished: true,
+
+            }
+        })
+    } catch (error) {
+        next(error);
+    }
+};
 
 module.exports = {
     createProduct,
@@ -1691,8 +1916,10 @@ module.exports = {
     softDeleteProduct,
     restoreProduct,
     permanentDeleteProduct,
-
     getAllProductsClient,
     getProductBySlugClient,
-    getProductBySlugClient
+    getProductBySlugClient,
+    getNewArrivals,
+    getTopSelling,
+    getRelatedProducts
 }
