@@ -1,8 +1,9 @@
 const { PrismaClient } = require('@prisma/client');
-const { createReviewSchema, getReviewsSchema, updateReviewSchema } = require('../middlewares/validations/review.validation');
+const { createReviewSchema, getReviewsSchema, updateReviewSchema, getFeaturedReviewsSchema } = require('../middlewares/validations/review.validation');
 const { BadRequestError, NotFoundError, ConflictRequestError } = require('../utils/core/errorResponse');
 const { Created, OK } = require('../utils/core/successResponse');
 const prisma = new PrismaClient();
+const { validate } = require('../utils/validateSchema');
 
 const createReview = async (req, res, next) => {
     try {
@@ -131,7 +132,7 @@ const createReview = async (req, res, next) => {
 
         return new Created({
             message: 'Review created successfully',
-            metadata: formattedReview
+            data: formattedReview
         }).send(res);
     } catch (error) {
         next(error);
@@ -246,7 +247,7 @@ const getReviewsByProduct = async (req, res, next) => {
 
         return new OK({
             message: 'Get reviews successfully',
-            metadata: {
+            data: {
                 product,
                 pagination: {
                     currentPage: page,
@@ -346,7 +347,7 @@ const getUserReviews = async (req, res, next) => {
 
         return new OK({
             message: 'Get user reviews successfully',
-            metadata: {
+            data: {
                 pagination: {
                     currentPage: page,
                     totalPages,
@@ -434,7 +435,7 @@ const updateReview = async (req, res, next) => {
 
         return new OK({
             message: 'Review updated successfully',
-            metadata: formattedReview
+            data: formattedReview
         }).send(res);
     } catch (error) {
         next(error);
@@ -470,10 +471,78 @@ const deleteReview = async (req, res, next) => {
     }
 }
 
+const getFeaturedReviews = async (req, res, next) => {
+    try {
+        const { limit, minRating } = validate(getFeaturedReviewsSchema, req.query);
+
+        const reviews = await prisma.review.findMany({
+            where: {
+                rating: { gte: minRating },
+                comment: { not: '' }
+            },
+            orderBy: [
+                { rating: 'desc' },
+                { createdAt: 'desc' }
+            ],
+            take: limit * 2, // Get more to filter
+            select: {
+                id: true,
+                rating: true,
+                comment: true,
+                user: {
+                    select: {
+                        id: true,
+                        firstName: true,
+                        lastName: true,
+                        avatarUrl: true
+                    }
+                },
+                createdAt: true
+            }
+        });
+
+        const meaningfulReviews = reviews
+            .filter(review => review.comment.length >= 10)
+            .slice(0, limit);
+
+        const formattedReviews = meaningfulReviews.map(review => ({
+            id: review.id,
+            rating: review.rating,
+            comment: review.comment,
+            customer: {
+                id: review.user.id,
+                name: `${review.user.firstName || ''} ${review.user.lastName || ''}`.trim() || 'Anonymous',
+                avatar: review.user.avatarUrl || null,
+                initials: getInitials(review.user.firstName, review.user.lastName)
+            },
+            createdAt: review.createdAt,
+            verifiedPurchase: true // All reviews in system are from delivered orders
+        }));
+
+        return new OK({
+            message: 'Get featured reviews successfully',
+            data: {
+                total: formattedReviews.length,
+                reviews: formattedReviews,
+            }
+        }).send(res);
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
+
+const getInitials = (firstName, lastName) => {
+    const first = firstName?.charAt(0)?.toUpperCase() || '';
+    const last = lastName?.charAt(0)?.toUpperCase() || '';
+    return (first + last) || 'AN';
+};
+
 module.exports = {
     createReview,
     getReviewsByProduct,
     getUserReviews,
     updateReview,
-    deleteReview
+    deleteReview,
+    getFeaturedReviews
 };

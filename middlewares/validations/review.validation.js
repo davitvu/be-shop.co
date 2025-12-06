@@ -44,8 +44,18 @@ const updateReviewSchema = Joi.object({
     'object.min': 'At least one field is required to update'
 });
 
+const getFeaturedReviewsSchema = Joi.object({
+    limit: Joi.number().integer().min(1).max(20).default(6),
+    minRating: Joi.number().integer().min(1).max(5).default(4)
+        .messages({
+            'number.min': 'Min rating must be at least 1',
+            'number.max': 'Min rating must not exceed 5'
+        })
+});
+
 module.exports = {
     createReviewSchema,
     getReviewsSchema,
-    updateReviewSchema
+    updateReviewSchema,
+    getFeaturedReviewsSchema
 }
